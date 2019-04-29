@@ -61,5 +61,6 @@ _deps
 *.cubin
 *.fatbin
 .idea
+build
 # End of https://www.gitignore.io/api/c++,cuda,cmake
 
