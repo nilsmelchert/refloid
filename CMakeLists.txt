@@ -84,7 +84,7 @@ project(OptiX-Samples)
 # This enforces a particular version of CMake that we require to process the script files
 # properly.
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
-set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 
 # As of CMake 2.6 policies were introduced in order to provide a mechanism for
 # adding backwards compatibility one feature at a time.  We will just specify
@@ -286,6 +286,13 @@ function(OPTIX_add_sample_executable target_name)
         CUDA_WRAP_SRCS(${target_name} PTX generated_files ${source_files} ${cmake_options} OPTIONS ${options})
     endif ()
 
+    # Find includes in corresponding build directories
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    # Instruct CMake to run moc automatically when needed.
+    set(CMAKE_AUTOMOC ON)
+
+    # Find the QtWidgets library
+    find_package(Qt5Widgets)
 
     # Here is where we create the rule to make the executable.  We define a target name and
     # list all the source files used to create the target.  In addition we also pass along
@@ -296,9 +303,21 @@ function(OPTIX_add_sample_executable target_name)
             ${cmake_options}
             )
 
+    # The Qt5Widgets_INCLUDES also includes the include directories for
+    # dependencies QtCore and QtGui
+    include_directories(${Qt5Widgets_INCLUDES})
+
+    # We need add -DQT_WIDGETS_LIB when using QtWidgets in Qt 5.
+    add_definitions(${Qt5Widgets_DEFINITIONS})
+
+    # Executables fail to build with Qt 5 in the default configuration
+    # without -fPIE. We add that here.
+    set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
     # Most of the samples link against the sutil library and the optix library.  Here is the
     # rule that specifies this linkage.
     target_link_libraries(${target_name}
+            Qt5::Widgets
             sutil_sdk
             optix
             ${optix_rpath}

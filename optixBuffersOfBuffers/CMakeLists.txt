@@ -27,20 +27,20 @@
 #
 
 # See top level CMakeLists.txt file for documentation of OPTIX_add_sample_executable.
-OPTIX_add_sample_executable( optixBuffersOfBuffers
-  optixBuffersOfBuffers.cpp
-  optixBuffersOfBuffers.cu
+OPTIX_add_sample_executable(optixBuffersOfBuffers
+        optixBuffersOfBuffers.cpp
+        optixBuffersOfBuffers.cu
 
-  # These files are common among multiple samples
-  common.h
-  constantbg.cu
-  helpers.h
-  parallelogram.cu
-  phong.cu
-  phong.h
-  pinhole_camera.cu
-  random.h
-  sphere_texcoord.cu
-  )
+        # These files are common among multiple samples
+        common.h
+        constantbg.cu
+        helpers.h
+        parallelogram.cu
+        phong.cu
+        phong.h
+        pinhole_camera.cu
+        random.h
+        sphere_texcoord.cu
+        )
 
 
