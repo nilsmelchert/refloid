@@ -79,7 +79,7 @@
 
 # This sets up the name of our project.  For our purposes the main thing this controls is
 # the name of the VS solution file.
-project(OptiX-Samples)
+project(Nslaift)
 
 # This enforces a particular version of CMake that we require to process the script files
 # properly.
@@ -190,6 +190,7 @@ find_package(OptiX REQUIRED)
 include_directories(
         "${OptiX_INCLUDE}"
         "${CMAKE_SOURCE_DIR}/external_libs/spdlog"
+        "${CMAKE_SOURCE_DIR}/src/host"
 )
 
 # Select whether to use NVRTC or NVCC to generate PTX
