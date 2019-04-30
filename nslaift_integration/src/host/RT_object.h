@@ -18,7 +18,7 @@
 #include <QString>
 #include "spdlog/spdlog.h"
 #include "RT_matrixHelpers.h"
-
+#include "RT_helper.h"
 /**
   @brief    abstract base class for scene object
 

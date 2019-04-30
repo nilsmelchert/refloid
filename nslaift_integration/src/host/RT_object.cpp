@@ -90,6 +90,7 @@ const optix::Material *RT_object::material() const {
   It could be useful to have a tellin-name for camera, e.g. "Pinhole f=100mm", or for manipulation
   **/
 void RT_object::setName(const QString &str) {
+    spdlog::debug("Setting name of object to {0}", m_strName.toUtf8().constData());
     m_strName = QString(str);
 }
 
@@ -107,6 +108,7 @@ QString RT_object::name() const {
                 -false: object is hidden
   **/
 void RT_object::setVisible(bool vis) {
+    spdlog::debug("Setting visibility of RT_object {0} to {1}.", m_strName.toUtf8().constData(), vis ? "True":"False");
     m_bVisible = vis;
 }
 
@@ -135,6 +137,7 @@ bool RT_object::upToDate() const {
   **/
 void RT_object::reset()                             //move relative to current location
 {
+    spdlog::info("Resetting poision of RT_object {0}", m_strName.toUtf8().constData());
     m_transform = optix::Matrix4x4::identity();
     m_bTransformCacheUpToDate = false;
 }
@@ -147,6 +150,7 @@ void RT_object::reset()                             //move relative to current l
 
   **/
 void RT_object::translate(optix::float3 &v) {
+    spdlog::debug("Translating RT_object {0} in its global world coordinate system by {1}, {2}, {3}", m_strName.toUtf8().constData(), v.x, v.y, v.z);
     optix::Matrix4x4 trans = optix::Matrix4x4::translate(v);
     m_transform = trans * m_transform;
     m_bTransformCacheUpToDate = false;
@@ -174,6 +178,7 @@ void RT_object::translate(float x, float y, float z) {
 
   **/
 void RT_object::move(optix::float3 &v) {
+    spdlog::debug("Moving RT_object {0} in its local coordinate system by {1}, {2}, {3}", m_strName.toUtf8().constData(), v.x, v.y, v.z);
     optix::Matrix4x4 trans = optix::Matrix4x4::translate(v);
     m_transform *= trans;
     m_bTransformCacheUpToDate = false;
@@ -184,13 +189,11 @@ void RT_object::move(optix::float3 &v) {
   @param    x   translation in x-direction
   @param    y   translation in y-direction
   @param    z   translation in z-direction
-
   **/
 void RT_object::move(float x, float y, float z) {
     optix::float3 translation = optix::make_float3(x, y, z);
     move(translation);
 }
-
 
 /**
   @brief    move object to absolute position in world coordinate system
@@ -203,6 +206,7 @@ void RT_object::move(float x, float y, float z) {
   Replace the part of the matrix that matters ;)
   **/
 void RT_object::setPosition(float x, float y, float z) {
+    spdlog::debug("Setting RT_object {0} to {1}, {2}, {3} in world coordinates", m_strName.toUtf8().constData(), x, y, z);
     m_transform[3] = x;
     m_transform[7] = y;
     m_transform[11] = z;
@@ -228,7 +232,7 @@ void RT_object::setPosition(optix::float3 &p) {
   All angles are in degrees
   **/
 void RT_object::spin(float rX, float rY, float rZ) {
-
+    spdlog::debug("Spinning RT_object {0} in its local coordinate system to {1}, {2}, {3}", m_strName.toUtf8().constData(), rX, rY, rZ);
     float yaw = rX * M_PIf / 180.0f;
     float pitch = rY * M_PIf / 180.0f;
     float roll = rZ * M_PIf / 180.0f;
@@ -257,7 +261,7 @@ void RT_object::spin(optix::float3 &r) {
   All angles are in degrees
   **/
 void RT_object::rotate(float rX, float rY, float rZ) {
-
+    spdlog::debug("Spinning RT_object {0} in its global world coordinate system to {1}, {2}, {3}", m_strName.toUtf8().constData(), rX, rY, rZ);
     float yaw = rX * M_PIf / 180.0f;
     float pitch = rY * M_PIf / 180.0f;
     float roll = rZ * M_PIf / 180.0f;
@@ -283,6 +287,7 @@ void RT_object::rotate(optix::float3 &r) {
   Transformation matrix is left multiplied   X' = T X
   **/
 void RT_object::transform(optix::Matrix4x4 &mat) {
+    spdlog::debug("Performing transformation on RT_object {0}", m_strName.toUtf8().constData());
 
     m_transform = mat * m_transform;
     m_bTransformCacheUpToDate = false;
@@ -293,6 +298,7 @@ void RT_object::transform(optix::Matrix4x4 &mat) {
   @param    mat new transformation matrix
   **/
 void RT_object::setTransformationMatrix(const optix::Matrix4x4 &mat) {
+    spdlog::debug("Setting new tranformation matrix for RT_object {0}", m_strName.toUtf8().constData());
     m_transform = mat;
     m_bTransformCacheUpToDate = false;
 }
@@ -322,6 +328,52 @@ const optix::float3 RT_object::position() const {
   @return   0 on success, negative on error, positive if action not found (use child class action)
   **/
 int RT_object::parseActions(const QString &action, const QString &parameters) {
+    spdlog::debug("Parsing the following action to RT_object {0}: \naction={1}; parameters={2}", m_strName.toUtf8().constData(), action.toUtf8().constData(), parameters.toUtf8().constData());
 
-    return 0;
+    if(0 == action.compare("reset", Qt::CaseInsensitive)) {
+        reset();
+    } else  if(0 == action.compare("move", Qt::CaseInsensitive)) {
+        float x,y,z;
+        if (0 == rthelpers::RT_parse_float3(parameters,&x,&y,&z)) {
+            move(x,y,z);
+        } else {
+            spdlog::debug("Error manipulating RT_object {0}, canot parse parameters {1} for action {2}", m_strName.toUtf8().constData(), parameters.toUtf8().constData(), action.toUtf8().constData());
+            return -1;
+        }
+    } else if(0 == action.compare("translate", Qt::CaseInsensitive)) {
+        float x,y,z;
+        if (0 == rthelpers::RT_parse_float3(parameters,&x,&y,&z)) {
+            translate(x,y,z);
+        } else {
+            spdlog::debug("Error manipulating RT_object {0}, canot parse parameters {1} for action {2}", m_strName.toUtf8().constData(), parameters.toUtf8().constData(), action.toUtf8().constData());
+            return -1;
+        }
+    } else if(0 == action.compare("setPosition", Qt::CaseInsensitive)) {
+        float x,y,z;
+        if (0 == rthelpers::RT_parse_float3(parameters,&x,&y,&z)) {
+            setPosition(x,y,z);
+        } else {
+            spdlog::debug("Error manipulating RT_object {0}, canot parse parameters {1} for action {2}", m_strName.toUtf8().constData(), parameters.toUtf8().constData(), action.toUtf8().constData());
+            return -1;
+        }
+    } else if(0 == action.compare("spin", Qt::CaseInsensitive)) {
+        float x,y,z;
+        if (0 == rthelpers::RT_parse_float3(parameters,&x,&y,&z)) {
+            spin(x,y,z);
+        } else {
+            spdlog::debug("Error manipulating RT_object {0}, canot parse parameters {1} for action {2}", m_strName.toUtf8().constData(), parameters.toUtf8().constData(), action.toUtf8().constData());
+            return -1;
+        }
+    } else if(0 == action.compare("rotate", Qt::CaseInsensitive)) {
+        float x, y, z;
+        if (0 == rthelpers::RT_parse_float3(parameters, &x, &y, &z)) {
+            rotate(x, y, z);
+        } else {
+            spdlog::debug("Error manipulating RT_object {0}, canot parse parameters {1} for action {2}",
+                          m_strName.toUtf8().constData(), parameters.toUtf8().constData(), action.toUtf8().constData());
+            return -1;
+        }
+
+        return 0;
+    }
 }
