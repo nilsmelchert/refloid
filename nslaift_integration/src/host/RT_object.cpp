@@ -369,11 +369,33 @@ int RT_object::parseActions(const QString &action, const QString &parameters) {
         if (0 == rthelpers::RT_parse_float3(parameters, &x, &y, &z)) {
             rotate(x, y, z);
         } else {
-            spdlog::debug("Error manipulating RT_object {0}, canot parse parameters {1} for action {2}",
-                          m_strName.toUtf8().constData(), parameters.toUtf8().constData(), action.toUtf8().constData());
+            spdlog::debug("Error manipulating RT_object {0}, canot parse parameters {1} for action {2}", m_strName.toUtf8().constData(), parameters.toUtf8().constData(), action.toUtf8().constData());
             return -1;
         }
-
-        return 0;
+    } else if(0 == action.compare("setName", Qt::CaseInsensitive)) {
+        if (!parameters.isEmpty()) {
+            setName(parameters);
+        } else {
+            spdlog::debug("Error manipulating RT_object {0}, canot parse parameters {1} for action {2}", m_strName.toUtf8().constData(), parameters.toUtf8().constData(), action.toUtf8().constData());
+            return -1;
+        }
+    } else if((0 == action.compare("setVisible", Qt::CaseInsensitive)) || (0 == action.compare("visible", Qt::CaseInsensitive))) {
+        bool ok;
+        bool visible = parameters.toInt(&ok);
+        if (ok) {
+            setVisible(visible);
+        } else {
+            spdlog::debug("Error manipulating RT_object {0}, canot parse parameters {1} for action {2}", m_strName.toUtf8().constData(), parameters.toUtf8().constData(), action.toUtf8().constData());
+            return -1;
+        }
+    } else if(0 == action.compare("transform", Qt::CaseInsensitive)) {
+        optix::Matrix4x4 mat;
+        rthelpers::RT_parse_matrix(parameters, &mat);
+        transform(mat);  //matrix dimension check is performed by this fn
+    } else if(0 == action.compare("setTransformationMatrix", Qt::CaseInsensitive)) {
+        optix::Matrix4x4 mat = optix::Matrix4x4::identity();
+        rthelpers::RT_parse_matrix(parameters, &mat);
+        setTransformationMatrix(mat);  //matrix dimension check is performed by this fn
     }
+    return 0;
 }

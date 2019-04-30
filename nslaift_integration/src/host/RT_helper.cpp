@@ -14,7 +14,7 @@
   **/
 int rthelpers::RT_parse_float3(const QString &str, float *x, float *y, float *z, const QString& delimiter /*=QString(","*/)
 {
-    if(x == NULL || y == NULL || z == NULL)
+    if(x == nullptr || y == nullptr || z == nullptr)
         return -1;
 
     QStringList sList = str.split(delimiter);
@@ -34,5 +34,33 @@ int rthelpers::RT_parse_float3(const QString &str, float *x, float *y, float *z,
     *z = sList.at(2).toFloat(&ok);
     if (!ok)
         return -5;
+    return 0;
+}
+
+/**
+ @brief parse a comma separated string 4x4 Matrix of the form "23.0, 2344.34, ... , 3.46, 65.235"
+ @param str string to decompose
+ @param mat resulting matrix parsed by string
+ @return returns 0 on success, non-zero on errors
+ **/
+int rthelpers::RT_parse_matrix(const QString &str, optix::Matrix4x4 *mat, const QString& delimiter /*=QString(","*/)
+{
+    if (mat == nullptr)
+        return -1;
+
+    QStringList sList = str.split(delimiter);
+    if (sList.count() != 16) {
+        *mat = optix::Matrix4x4::identity();
+        return -2;
+    }
+
+    bool ok = false;
+    for (int i=0; i<16; i++)
+    {
+        (*mat)[i] = sList.at(i).toFloat(&ok);
+        if (!ok)
+            return -i;
+    }
+
     return 0;
 }
