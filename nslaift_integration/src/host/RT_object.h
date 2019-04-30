@@ -17,6 +17,7 @@
 #include <optixu_math_namespace.h>
 #include <QString>
 #include "spdlog/spdlog.h"
+#include "RT_matrixHelpers.h"
 
 /**
   @brief    abstract base class for scene object

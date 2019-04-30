@@ -49,6 +49,7 @@ RT_object::~RT_object() {
             false if object got reattached from one to another group
   **/
 bool RT_object::setParent(RT_object *object) {
+    spdlog::debug("Setting parent object for RT_object {0}", m_strName.toUtf8().constData());
     bool ret = (m_parent != NULL);
     m_parent = object;
     return ret;
@@ -69,6 +70,7 @@ RT_object *RT_object::parent()
 
   **/
 void RT_object::setMaterial(const optix::Material &material) {
+    spdlog::debug("Setting material for RT_object {0}", m_strName.toUtf8().constData());
     // TODO: Implement me. Should the Material created inside here or before and then be passen to the RT_object instance?
     // m_context->createMaterial();
 }
@@ -165,7 +167,7 @@ void RT_object::translate(float x, float y, float z) {
 
 
 /**
-  @brief    move object relative to local coordinate system
+  @brief    move object relative to local object coordinate system
   @param    v   translation vector
 
   local system: right multiply transformation matrix
@@ -178,7 +180,7 @@ void RT_object::move(optix::float3 &v) {
 }
 
 /**
-  @brief    move object relative to current position in local coordinate system
+  @brief    move object relative to current position in local object coordinate system
   @param    x   translation in x-direction
   @param    y   translation in y-direction
   @param    z   translation in z-direction
@@ -215,38 +217,111 @@ void RT_object::setPosition(optix::float3 &p) {
     setPosition(p.x, p.y, p.z);
 }
 
+/**
+  @brief    rotate object in local coordinate system relatively to its current coordinate system
+  @param    rX    x-rotation
+  @param    rY    y-rotation
+  @param    rZ    z-rotation
+
+  right multiply rotation matrix: means spin locally
+
+  All angles are in degrees
+  **/
 void RT_object::spin(float rX, float rY, float rZ) {
 
+    float yaw = rX * M_PIf / 180.0f;
+    float pitch = rY * M_PIf / 180.0f;
+    float roll = rZ * M_PIf / 180.0f;
+
+    m_transform = m_transform * mhelpers::rotation(yaw, pitch, roll);
+    m_bTransformCacheUpToDate = false;
 }
 
+/**
+  @brief    rotate object in local coordinate system relatively to its current rotation
+  @param    r   relative rotation vector
+
+  All angles are in degrees
+  **/
 void RT_object::spin(optix::float3 &r) {
-
+    spin(r.x, r.y, r.z);
 }
 
+/**
+  @brief    rotate object in world coordinate system
+  @param    rX    x-rotation
+  @param    rY    y-rotation
+  @param    rZ    z-rotation
+
+  left multiply matrix;  rotate around world center
+  All angles are in degrees
+  **/
 void RT_object::rotate(float rX, float rY, float rZ) {
 
+    float yaw = rX * M_PIf / 180.0f;
+    float pitch = rY * M_PIf / 180.0f;
+    float roll = rZ * M_PIf / 180.0f;
+
+    m_transform = mhelpers::rotation(yaw, pitch, roll) * m_transform;
+    m_bTransformCacheUpToDate = false;
 }
 
+/**
+  @brief    rotate object in world coordinate system
+  @param    r    rotation vector
+
+  All angles are in degrees
+  **/
 void RT_object::rotate(optix::float3 &r) {
-
+    rotate(r.x, r.y, r.z);
 }
 
+/**
+  @brief    transform object
+  @param    mat     transformation (matrix) to apply
+
+  Transformation matrix is left multiplied   X' = T X
+  **/
 void RT_object::transform(optix::Matrix4x4 &mat) {
 
+    m_transform = mat * m_transform;
+    m_bTransformCacheUpToDate = false;
 }
 
+/**
+  @brief    replace objects transformation matrix with mat
+  @param    mat new transformation matrix
+  **/
 void RT_object::setTransformationMatrix(const optix::Matrix4x4 &mat) {
-
+    m_transform = mat;
+    m_bTransformCacheUpToDate = false;
 }
 
+/**
+  @brief    get a copy of the current transofrmation matrix
+  @return   transfromation matrix with current values
+  **/
 optix::Matrix4x4 RT_object::transformationMatrix() {
     return optix::Matrix4x4();
 }
 
+/**
+  @brief    read position
+  @return   the t-part of the R|t - transformation matrix
+
+  @bug bad idea, not reliable? verify!
+  **/
 const optix::float3 RT_object::position() const {
-    return optix::float3();
+    return optix::make_float3(m_transform[3], m_transform[7], m_transform[11]);
 }
 
+/**
+  @brief    parse parameters
+  @param    action  string describing action to perform
+  @param    params  action parameters
+  @return   0 on success, negative on error, positive if action not found (use child class action)
+  **/
 int RT_object::parseActions(const QString &action, const QString &parameters) {
+
     return 0;
 }
