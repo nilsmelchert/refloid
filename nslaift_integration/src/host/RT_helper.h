@@ -18,9 +18,31 @@
 #include <optixu/optixu_math_stream_namespace.h>
 #include <optixu_math_namespace.h>
 
+// Defines for getting the cmake environment variables in c++
+#ifdef OPTIX_BIN_PATH
+#define BIN_DIR OPTIX_BIN_PATH
+#else
+#define BIN_DIR NULL
+#endif
+#ifdef OPTIX_BASE_PATH
+#define BASE_DIR OPTIX_BASE_PATH
+#else
+#define BASE_DIR NULL
+#endif
+
+extern const char *const SAMPLE_NAME;
+
 namespace rthelpers{
     int RT_parse_float3(const QString &str, float *x, float *y, float *z, const QString& delimiter = QString(","));
     int RT_parse_matrix(const QString &str, optix::Matrix4x4 *matconst, const QString& delimiter = QString(","));
+
+
+    static std::string ptxPath(const std::string &cuda_file) {
+        return
+                std::string(BIN_DIR) + std::string(SAMPLE_NAME) + "_generated_" +
+                cuda_file +
+                ".ptx";
+    }
 }
 
 #endif //NSLAIFT_RT_HELPER_H

@@ -176,6 +176,8 @@ mark_as_advanced(CUDA_NVRTC_FLAGS)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+add_definitions( -DOPTIX_BIN_PATH=\"${CMAKE_BINARY_DIR}/lib/ptx/\")
+add_definitions( -DOPTIX_BASE_PATH=\"${OptiX_INSTALL_DIR}/\")
 
 # Create a flag for mac which will allow apps to add the local cuda toolkit
 # install path to the app's rpath.
@@ -199,6 +201,7 @@ set(CUDA_NVRTC_ENABLED ON CACHE BOOL "Use NVRTC to compile PTX at run-time inste
 ##################################################################
 # SUtil compilation
 
+set(OPTIX_SAMPLES_SDK_PTX_DIR "${CMAKE_BINARY_DIR}/lib/ptx")
 set(SAMPLES_PTX_DIR "${CMAKE_BINARY_DIR}/lib/ptx")
 set(SAMPLES_DIR "${OptiX_INSTALL_DIR}/SDK")
 
@@ -225,6 +228,7 @@ set(CUDA_NVRTC_OPTIONS "${CUDA_NVRTC_OPTIONS} \\\n  0,")
 
 # TODO: Maybe set this studd in parentheses
 configure_file(${OptiX_INSTALL_DIR}/SDK/sampleConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/sampleConfig.h @ONLY)
+set(SAMPLES_CUDA_DIR ${OptiX_INSTALL_DIR}/dependencies/NVIDIA-OptiX-SDK-5.1.0-linux64/SDK/cuda)
 
 # Path to sutil.h that all the samples need
 include_directories(${OptiX_INSTALL_DIR}/SDK/sutil

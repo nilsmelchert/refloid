@@ -20,7 +20,6 @@
 RT_object::RT_object(optix::Context &context, RT_object *parent):
 m_context(context)
 {
-    spdlog::info("Creating RT_object with memory address: {}", 1);
     m_parent = parent;
 
     m_transform = optix::Matrix4x4::identity();
@@ -90,7 +89,7 @@ const optix::Material *RT_object::material() const {
   It could be useful to have a tellin-name for camera, e.g. "Pinhole f=100mm", or for manipulation
   **/
 void RT_object::setName(const QString &str) {
-    spdlog::debug("Setting name of object to {0}", m_strName.toUtf8().constData());
+    spdlog::debug("Setting name of object to {0}", str.toUtf8().constData());
     m_strName = QString(str);
 }
 

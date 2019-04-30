@@ -26,6 +26,7 @@
 **/
 class RT_object {
 public:
+    optix::Context& m_context;
     ///< transformation matrix of object
     optix::Matrix4x4 m_transform;
     ///< state if m_polyDataTransformed must be recalculated
@@ -82,9 +83,6 @@ public:
     virtual optix::Matrix4x4 transformationMatrix();                  //get transformation matrix
 
     virtual const optix::float3 position() const;
-
-private:
-    optix::Context& m_context;
 };
 
 #endif //NSLAIFT_RTOBJECT_H
