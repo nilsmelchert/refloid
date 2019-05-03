@@ -12,7 +12,7 @@
 #include <optixu_math_namespace.h>
 
 
-const char *const SAMPLE_NAME = "nslaift_integration";
+const char *const SAMPLE_NAME = "nslaift";
 
 int main(){
     spdlog::set_level(spdlog::level::debug);

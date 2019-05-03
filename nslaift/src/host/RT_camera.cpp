@@ -59,7 +59,7 @@ int RT_camera::projectionType() {
   @return   returns zero on success, non-zero on error
 
   **/
-int RT_camera::setSensorResolution(int iWidth, int iHeight) {
+int RT_camera::setSensorResolution(unsigned int iWidth, unsigned int iHeight) {
     spdlog::debug("Setting resolution for camera {0}", m_strName.toUtf8().constData());
     if (iWidth <= 0 || iHeight <= 0) {
         spdlog::error("Invalid (non-positive) parameters given");
@@ -144,14 +144,25 @@ int RT_camera::updateCache() {
     if (m_iType == TypePinhole)
     {
         std::string ptx_path_rgp(rthelpers::ptxPath("pinhole_cam.cu")); // ptx path ray generation program
-        std::cout << ptx_path_rgp << std::endl;
         m_ray_gen_pgrm = m_context->createProgramFromPTXFile(ptx_path_rgp, "camera");
+        m_ray_gen_pgrm["width"]->setUint(m_iWidth);
+        m_ray_gen_pgrm["height"]->setUint(m_iHeight);
         m_ray_gen_pgrm["Rt"]->setMatrix4x4fv(false, m_transform.getData());
         m_ray_gen_pgrm["Rt_inv"]->setMatrix4x4fv(false, m_transform.inverse().getData());
         m_ray_gen_pgrm["K"]->setMatrix4x4fv(false, m_K.getData());
         m_ray_gen_pgrm["K_inv"]->setMatrix4x4fv(false, m_K.inverse().getData());
-        m_ray_gen_pgrm["dist"]->setUserData(sizeof(float)*5, m_distortion);
-        m_ray_gen_pgrm["undist"]->setUserData(sizeof(float)*5, m_undistortion);
+        optix::Buffer distBuff = m_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_FLOAT, 5);
+        // Copy data into OptiX buffer
+        void* dist = distBuff->map(0, RT_BUFFER_MAP_WRITE_DISCARD);
+        memcpy(dist, m_distortion, sizeof(float)*5);
+        distBuff->unmap();
+        optix::Buffer undistBuff = m_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_FLOAT, 5);
+        // Copy data into OptiX buffer
+        void* undist = undistBuff->map(0, RT_BUFFER_MAP_WRITE_DISCARD);
+        memcpy(undist, m_undistortion, sizeof(float)*5);
+        undistBuff->unmap();
+
+
 
         m_context->setRayGenerationProgram(m_iCameraIdx, m_ray_gen_pgrm);
     } else {

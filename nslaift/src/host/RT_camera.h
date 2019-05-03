@@ -38,11 +38,11 @@ public:
 /* caching some parameters for speed */
     optix::Matrix4x4 m_K_inv;               ///<    inverse of m_K
 
-    int m_iWidth;      ///< pixel count for rendering the exactly same image area
-    int m_iHeight;     ///< pixel count for rendering the exactly same image area
+    unsigned int m_iWidth;      ///< pixel count for rendering the exactly same image area
+    unsigned int m_iHeight;     ///< pixel count for rendering the exactly same image area
 
 public:
-    RT_camera(optix::Context &context, RT_object *parent = NULL);
+    RT_camera(optix::Context &context, RT_object *parent = nullptr);
 
     virtual ~RT_camera();
 
@@ -50,7 +50,7 @@ public:
 
     virtual int projectionType();
 
-    virtual int setSensorResolution(int iWidth, int iHeight);
+    virtual int setSensorResolution(unsigned int iWidth, unsigned int iHeight);
 
     virtual int setIntrinsics(const optix::Matrix4x4 &mat);
 

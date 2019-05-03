@@ -192,8 +192,6 @@ include_directories(${OptiX_INSTALL_DIR}/SDK/sutil
 include(FindSUtilGLUT)
 
 set(SAMPLES_INCLUDE_DIR ${OptiX_INSTALL_DIR}/SDK/cuda)
-message("HIERRRRR")
-message(${OptiX_INSTALL_DIR}/SDK/cuda)
 
 if (EXISTS ${OptiX_INSTALL_DIR}/SDK/support/mdl-sdk/include/mi/mdl_sdk.h)
     # The MDL_SDK wrapper library can only be built when the MDL SDK is available
@@ -225,24 +223,10 @@ function(OPTIX_add_sample_executable target_name)
     # the SDK.
     CUDA_GET_SOURCES_AND_OPTIONS(source_files cmake_options options ${ARGN})
 
-    if (CUDA_NVRTC_ENABLED)
+    # Create the rules to build the PTX from the CUDA files.
+    CUDA_WRAP_SRCS(${target_name} PTX generated_files ${source_files} ${cmake_options}
+            OPTIONS ${options})
 
-        # Isolate OBJ target files. NVCC should only process these files and leave PTX targets for NVRTC
-        set(cu_obj_source_files)
-        foreach (file ${source_files})
-            get_source_file_property(_cuda_source_format ${file} CUDA_SOURCE_PROPERTY_FORMAT)
-            if (${_cuda_source_format} MATCHES "OBJ")
-                list(APPEND cu_obj_source_files ${file})
-            endif ()
-        endforeach ()
-
-        # Create the rules to build the OBJ from the CUDA files.
-        CUDA_WRAP_SRCS(${target_name} OBJ generated_files ${cu_obj_source_files} ${cmake_options} OPTIONS ${options})
-    else ()
-
-        # Create the rules to build the PTX and OBJ from the CUDA files.
-        CUDA_WRAP_SRCS(${target_name} PTX generated_files ${source_files} ${cmake_options} OPTIONS ${options})
-    endif ()
 
     # Find includes in corresponding build directories
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -261,6 +245,7 @@ function(OPTIX_add_sample_executable target_name)
             ${cmake_options}
             )
 
+
     # The Qt5Widgets_INCLUDES also includes the include directories for
     # dependencies QtCore and QtGui
     include_directories(${Qt5Widgets_INCLUDES})
@@ -272,22 +257,17 @@ function(OPTIX_add_sample_executable target_name)
     # without -fPIE. We add that here.
     set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
-    # Most of the samples link against the sutil library and the optix library.  Here is the
+    # Most of the samples link against sutil, optix, and glfw.  Here is the
     # rule that specifies this linkage.
+    #            imgui
+    #glfw
+
     target_link_libraries(${target_name}
             Qt5::Widgets
             sutil_sdk
             optix
             ${optix_rpath}
             )
-
-    file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/logs")
-
-    if (UNIX AND NOT APPLE)
-        # Force using RPATH instead of RUNPATH on Debian
-        target_link_libraries(${target_name} "-Wl,--disable-new-dtags")
-    endif ()
-
     if (USING_GNU_CXX)
         target_link_libraries(${target_name} m) # Explicitly link against math library (C samples don't do that by default)
     endif ()
@@ -352,4 +332,3 @@ endif (WIN32)
 # We use this variable to set certain defaults only on the first pass, so that we don't
 # continually set them over and over again.
 set(PASSED_FIRST_CONFIGURE ON CACHE INTERNAL "Already Configured once?")
-
