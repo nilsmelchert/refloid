@@ -11,7 +11,7 @@ RT_scene::RT_scene() {
     RT_camera* cam = new RT_camera(m_context);
     cam->setName("cam1");
     cam->setProjectionType(1);
-//    cam->updateCache();
+    cam->updateCache();
 //    m_context->validate();
 }
 

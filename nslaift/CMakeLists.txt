@@ -1,6 +1,7 @@
 # See top level CMakeLists.txt file for documentation of OPTIX_add_sample_executable.
-OPTIX_add_sample_executable( nslaift_integration
+OPTIX_add_sample_executable( nslaift
         main.cpp
+        src/device/pinhole_cam.cu
         src/host/RT_matrixHelpers.h
         src/host/RT_matrixHelpers.cpp
         src/host/RT_helper.h
@@ -13,7 +14,6 @@ OPTIX_add_sample_executable( nslaift_integration
         src/host/RT_object.cpp
 
 
-        src/device/pinhole_cam.cu
   )
 
 

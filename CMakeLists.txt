@@ -1,85 +1,4 @@
-#
-# Copyright (c) 2018, NVIDIA CORPORATION. All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#  * Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the distribution.
-#  * Neither the name of NVIDIA CORPORATION nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
-# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-
-# Welcome to the OptiX SDK build.  We have chosen CMake, because it can generate multiple
-# build systems for multiple architectures from a single script.  There are many resources
-# for CMake on-line at http://www.cmake.org and their wiki page,
-# http://www.cmake.org/Wiki/CMake, in addition to the documentation that comes with the
-# distribution.  There is also a book available if you wish to delve more deeply into
-# various topics.
-
-# If you wish to create your own project and use the SDK as a template there are a number
-# of things you should do.
-#
-# 1. You should copy the contents of the SDK to a place of your choice.
-# 
-# 2. You can remove any sample's directory you don't wish to build.  Be careful about
-#    the following directories.
-#
-#    a. CMake - contains helper scripts that make this all work.  You should keep this.
-#
-#    b. sutil and putil 
-#              - Almost all of the samples make use of this shared code one way or another, so
-#               you should probably keep them until you have your own frameowrk for your
-#               code.
-#
-#    d. data  - This directory contains the cow.obj file used as an example for
-#               many of the samples.  You can move cow.obj anywhere as long as
-#               you fix all the file paths in the samples you wish to use it in.
-#
-# 3. You should update the list of sub directories that CMake needs to process below (look
-#    for the comment "List of samples found in subdirectories.")
-#
-
-# The basic flow of execution of this file is to do the following.
-#
-# 1. Setup the project and other global settings.  This involves processing some helper
-#    scripts.
-# 
-# 2. Look for external dependencies, such as glut, DirectX, CUDA, and OptiX.
-#
-# 3. Process all the subdirectories' CMakeLists.txt files.  These files create all the
-#    executable and library targets that are used to build the SDK.
-#
-# 4. As a convenience on Windows, copy the OptiX dlls into the build directories, so OptiX
-#    doesn't have to be in the path to run the samples.
-#
-# 5. Set a CMake variable that indicates we have configured for the first time.  This
-#    allows us to override and set varibles' defaults while allowing them to be modified
-#    later.
-
-# If you have any questions, don't feel shy about posting to the OptiX forums:
-# https://devtalk.nvidia.com/default/board/90/
-
-
-# This sets up the name of our project.  For our purposes the main thing this controls is
-# the name of the VS solution file.
-project(Nslaift)
+project(nslaift)
 
 # This enforces a particular version of CMake that we require to process the script files
 # properly.
@@ -129,6 +48,13 @@ include(ConfigCompilerFlags)
 # is a custom extension to the FindCUDA code distributed by CMake.
 OPTION(CUDA_REMOVE_GLOBAL_MEMORY_SPACE_WARNING "Suppress the \"Advisory: Cannot tell what pointer points to, assuming global memory space\" warning nvcc makes." ON)
 
+
+# For Xcode 5, gcc is actually clang, so we have to tell CUDA to treat the compiler as
+# clang, so that it doesn't mistake it for something else.
+if (USING_CLANG_C)
+    set(CUDA_HOST_COMPILER "clang" CACHE FILEPATH "Host side compiler used by NVCC")
+endif ()
+
 # CUDA 8 is broken for generating dependencies during configure
 option(CUDA_GENERATE_DEPENDENCIES_DURING_CONFIGURE "Generate dependencies during configure time instead of only during build time." OFF)
 
@@ -168,6 +94,21 @@ if (NOT PASSED_FIRST_CONFIGURE)
     set(CUDA_NVRTC_FLAGS -arch compute_30 -use_fast_math -lineinfo -default-device -rdc true -D__x86_64 CACHE LIST "Semi-colon delimit multiple arguments." FORCE)
 endif (NOT PASSED_FIRST_CONFIGURE)
 
+# Add required nvcc flag for callable programs under CUDA 8
+if (CUDA_VERSION VERSION_GREATER "7.5")
+    set(flag "--keep-device-functions")
+    list(FIND CUDA_NVCC_FLAGS ${flag} index)
+    if (index EQUAL -1)
+        list(APPEND CUDA_NVCC_FLAGS ${flag})
+        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE LIST "Semi-colon delimit multiple arguments." FORCE)
+    endif ()
+endif ()
+
+# This passes a preprocessor definition to cl.exe when processing CUDA code.
+if (USING_WINDOWS_CL)
+    list(APPEND CUDA_NVCC_FLAGS --compiler-options /D_USE_MATH_DEFINES)
+endif ()
+
 mark_as_advanced(CUDA_NVRTC_FLAGS)
 
 # Put all the runtime stuff in the same directory.  By default, CMake puts each targets'
@@ -176,6 +117,8 @@ mark_as_advanced(CUDA_NVRTC_FLAGS)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+message("${CMAKE_BINARY_DIR}/lib")
+message("\"${CMAKE_BINARY_DIR}/lib/ptx/\"")
 add_definitions( -DOPTIX_BIN_PATH=\"${CMAKE_BINARY_DIR}/lib/ptx/\")
 add_definitions( -DOPTIX_BASE_PATH=\"${OptiX_INSTALL_DIR}/\")
 
@@ -195,6 +138,7 @@ include_directories(
         "${CMAKE_SOURCE_DIR}/src/host"
 )
 
+
 # Select whether to use NVRTC or NVCC to generate PTX
 set(CUDA_NVRTC_ENABLED ON CACHE BOOL "Use NVRTC to compile PTX at run-time instead of NVCC at build-time")
 
@@ -203,9 +147,17 @@ set(CUDA_NVRTC_ENABLED ON CACHE BOOL "Use NVRTC to compile PTX at run-time inste
 
 set(OPTIX_SAMPLES_SDK_PTX_DIR "${CMAKE_BINARY_DIR}/lib/ptx")
 set(SAMPLES_PTX_DIR "${CMAKE_BINARY_DIR}/lib/ptx")
-set(SAMPLES_DIR "${OptiX_INSTALL_DIR}/SDK")
-
+# set(SAMPLES_DIR "${OptiX_INSTALL_DIR}/SDK")
+set(SAMPLES_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(CUDA_GENERATED_OUTPUT_DIR ${SAMPLES_PTX_DIR})
+
+if (WIN32)
+    string(REPLACE "/" "\\\\" SAMPLES_PTX_DIR ${SAMPLES_PTX_DIR})
+else (WIN32)
+    if (USING_GNU_C AND NOT APPLE)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DM_PI=3.14159265358979323846")
+    endif ()
+endif (WIN32)
 
 # NVRTC include paths relative to the sample path
 set(SAMPLES_RELATIVE_INCLUDE_DIRS "\\
@@ -227,8 +179,7 @@ endforeach ()
 set(CUDA_NVRTC_OPTIONS "${CUDA_NVRTC_OPTIONS} \\\n  0,")
 
 # TODO: Maybe set this studd in parentheses
-configure_file(${OptiX_INSTALL_DIR}/SDK/sampleConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/sampleConfig.h @ONLY)
-set(SAMPLES_CUDA_DIR ${OptiX_INSTALL_DIR}/dependencies/NVIDIA-OptiX-SDK-5.1.0-linux64/SDK/cuda)
+configure_file(${OptiX_INSTALL_DIR}/SDK/sampleConfig.h.in ${CMAKE_BINARY_DIR}/sampleConfig.h @ONLY)
 
 # Path to sutil.h that all the samples need
 include_directories(${OptiX_INSTALL_DIR}/SDK/sutil
@@ -239,6 +190,10 @@ include_directories(${OptiX_INSTALL_DIR}/SDK/sutil
         ${CUDA_INCLUDE_DIRS})
 
 include(FindSUtilGLUT)
+
+set(SAMPLES_INCLUDE_DIR ${OptiX_INSTALL_DIR}/SDK/cuda)
+message("HIERRRRR")
+message(${OptiX_INSTALL_DIR}/SDK/cuda)
 
 if (EXISTS ${OptiX_INSTALL_DIR}/SDK/support/mdl-sdk/include/mi/mdl_sdk.h)
     # The MDL_SDK wrapper library can only be built when the MDL SDK is available
@@ -260,9 +215,7 @@ function(OPTIX_add_sample_executable target_name)
 
     # These calls will group PTX and CUDA files into their own directories in the Visual
     # Studio projects.
-    if (NOT CUDA_NVRTC_ENABLED)
-        source_group("PTX Files" REGULAR_EXPRESSION ".+\\.ptx$")
-    endif ()
+    source_group("PTX Files" REGULAR_EXPRESSION ".+\\.ptx$")
     source_group("CUDA Files" REGULAR_EXPRESSION ".+\\.cu$")
 
     # Separate the sources from the CMake and CUDA options fed to the macro.  This code
@@ -347,7 +300,7 @@ endfunction()
 # Just make sure you rename all the occurances of the sample's name in the C code as well
 # and the CMakeLists.txt file.
 # add_subdirectory(optixBuffersOfBuffers)
-add_subdirectory(nslaift_integration)
+add_subdirectory(nslaift)
 
 # Our sutil library.  The rules to build it are found in the subdirectory.
 # add_subdirectory(sutil)
@@ -371,7 +324,6 @@ if (WIN32)
             function(copy_dll lib)
                 get_filename_component(path ${loc} PATH)
                 get_filename_component(name ${lib} NAME)
-                #message("${CMAKE_COMMAND} -E copy_if_different ${lib} ${path}/${name}")
                 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${lib} ${path}/${name})
             endfunction()
 

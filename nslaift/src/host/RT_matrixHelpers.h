@@ -16,4 +16,4 @@ namespace mhelpers {
     //create 4x4 homogeneous rotation matrix with yaw pitch and roll set to parameters (in rad)
     optix::Matrix4x4 rotation(float yaw, float pitch, float roll);
 }
-#endif NSLAIFT_RT_MATRIXHELPERS_H
+#endif
