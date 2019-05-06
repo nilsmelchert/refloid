@@ -12,15 +12,20 @@ RT_camera::RT_camera(optix::Context &context, RT_object *parent) :
 
     m_iCameraIdx = m_context->getEntryPointCount();
     m_context->setEntryPointCount(m_iCameraIdx + 1);
-    spdlog::debug("Creating camera object with index {0}", m_iCameraIdx);
+    spdlog::debug("Creating camera object with entry point index {0}", m_iCameraIdx);
 
     m_iType = TypeUnConfig;
 
-    m_iWidth = 1024;
-    m_iHeight = 768;
-
-    m_K = optix::Matrix4x4::identity();
-    m_K_inv = optix::Matrix4x4::identity();
+    // Setting default camera parameters
+    spdlog::debug("Setting default camera parameters for cam with entry point index {0}", m_iCameraIdx);
+    m_iWidth = 1280;
+    m_iHeight = 960;
+    const float K_default[16] = {1136.0f, 0.0f      , 640.0f    , 0.0f,
+                                0.0f    , 1136.0f   , 480.0f    , 0.0f,
+                                0.0f    , 0.0f      , 1.0f      , 0.0f,
+                                0.0f    , 0.0f      , 0.0f      , 1.0f};
+    m_K = optix::Matrix4x4(K_default);
+    m_K_inv = m_K.inverse();
 
     m_transform = optix::Matrix4x4::identity();
 }
@@ -151,18 +156,20 @@ int RT_camera::updateCache() {
         m_ray_gen_pgrm["Rt_inv"]->setMatrix4x4fv(false, m_transform.inverse().getData());
         m_ray_gen_pgrm["K"]->setMatrix4x4fv(false, m_K.getData());
         m_ray_gen_pgrm["K_inv"]->setMatrix4x4fv(false, m_K.inverse().getData());
+        m_ray_gen_pgrm["entry_point_id"]->setUint(m_iCameraIdx);
+
         optix::Buffer distBuff = m_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_FLOAT, 5);
         // Copy data into OptiX buffer
         void* dist = distBuff->map(0, RT_BUFFER_MAP_WRITE_DISCARD);
         memcpy(dist, m_distortion, sizeof(float)*5);
         distBuff->unmap();
+        m_ray_gen_pgrm["distBuff"]->setBuffer(distBuff);
         optix::Buffer undistBuff = m_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_FLOAT, 5);
         // Copy data into OptiX buffer
         void* undist = undistBuff->map(0, RT_BUFFER_MAP_WRITE_DISCARD);
         memcpy(undist, m_undistortion, sizeof(float)*5);
         undistBuff->unmap();
-
-
+        m_ray_gen_pgrm["undistBuff"]->setBuffer(undistBuff);
 
         m_context->setRayGenerationProgram(m_iCameraIdx, m_ray_gen_pgrm);
     } else {
@@ -182,7 +189,7 @@ optix::float3 RT_camera::centerPosition() {
 
 /**
   @brief    get camera's principal axis
-  @return   line starting at centre through principal axis
+  @return   line starting at center through principal axis
 
  Principle axis is actually the z-axis
   **/

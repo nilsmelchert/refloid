@@ -17,7 +17,7 @@ const char *const SAMPLE_NAME = "nslaift";
 int main(){
     spdlog::set_level(spdlog::level::debug);
     spdlog::info("Starting raytracing test application");
-    RT_scene* Scene = new RT_scene();
+    auto Scene = new RT_scene();
 
     return 0;
 }

@@ -6,13 +6,17 @@
 #define NSLAIFT_RT_SCENE_H
 
 #include "RT_object.h"
+#include "RT_camera.h"
 
+#include <sutil.h>
+#include <OptiXMesh.h>
 #include <optix.h>
 #include <optixu/optixpp_namespace.h>
 #include <optixu/optixu_math_stream_namespace.h>
 #include <optixu_math_namespace.h>
 #include <QString>
-#include "spdlog/spdlog.h"
+#include <QVector>
+#include <spdlog/spdlog.h>
 
 class RT_scene
 {
@@ -21,6 +25,7 @@ public:
     ~RT_scene();
 
 public:
+    RT_camera*                     m_activeCamera;          ///<   camera through which it is rendered (=active camera)
     // delete all content in the scene
     int clear(bool destroy = true);
     RT_object* createObject(const QString &name, const QString &objType, const QString &objParams);
@@ -29,16 +34,15 @@ public:
     int manipulateObject(const QString &name,const QString &action,const QString &parameters);
     int manipulateObject(RT_object *object, const QString &action, const QString &parameters);
 
-//    int addCamera(RT_camera *cam);
-//    int countCameras() const;
-//    int removeCamera(int idx);
-//    RT_camera* camera(int idx) const;
-//    RT_camera* activeCamera() const;
-//    int       setActiveCamera(int idx);
-//    int       cameraIndex(const RT_camera* pCamera) const;
-//    int       cameraIndex(const QString& name) const;
-//    QString   cameraName(int idx) const;
-//
+    int addCamera(RT_camera *cam);
+    int countCameras() const;
+    RT_camera* camera(int idx) const;
+    RT_camera* activeCamera() const;
+    int       setActiveCamera(int idx);
+    int       cameraIndex(const RT_camera* pCamera) const;
+    int       cameraIndex(const QString& name) const;
+    QString   cameraName(int idx) const;
+
 //    int         addObject(RT_object *obj);     // return id
 //    int         countObjects() const;
 //    int         removeObject(int idx);
@@ -59,27 +63,38 @@ public:
 //    RT_object*   findObject(const QString& name) const;
 //    int         deleteObject(const QString& name);
 //
-//    void setBackgroundColor(const RT_color &col);
-//    RT_color backgroundColor();
+    void setBackgroundColor(const optix::float3 &col);
+    optix::float3 backgroundColor();
 //
 //    bool    checkScene();
-//    int     updateCaches(bool force = false);
+    int     updateCaches(bool force = false);
 //
 //public:
     bool                          m_bSceneOk;        ///<   is scene ok, set up properly? can we render???
 
 //    RT_camera*                     m_activeCamera;          ///<   camera through which it is rendered (=active camera)
-//    RT_color                       m_colBackground;   ///<   specify background color for scene
+    optix::float3                       m_colBackground = {0.0f, 0.0f, 0.0f};   ///<   specify background color for scene
 //
 //    bool                          m_bGlobalShadows;  ///<   globally enable / disable shadowing
 //    int                           m_iMirrorDepth;   ///<   recursion depth of mirroring, defaults to 0 (no reflections at all)
 //
-//    QVector< RT_camera* >            m_cameras;         ///<   list of all scene cameras
-//    QVector< RT_object* >            m_objects;         ///<   list of all scene objects may also have RT_objectGroup as entries
+    QVector< RT_camera* >            m_cameras;         ///<   list of all scene cameras
+    QVector< RT_object* >            m_objects;         ///<   list of all scene objects may also have RT_objectGroup as entries
 //    QVector< RT_lightSource* >       m_lights;          ///<   list of all light sources within scene
+public:
+    void render(int iterations=1);
+    optix::Group m_rootGroup;
+
 private:
     optix::Context m_context;
-    void setupContext(optix::Context &context);
+    optix::Group m_top_group;
+    void setupContext();
+    void initPrograms();
+    void initOutputBuffers();
+
+    optix::Program m_miss_program;
+    optix::Buffer m_outputBuffer;
+    optix::Buffer m_accumBuffer;
 };
 
 #endif //NSLAIFT_RT_SCENE_H

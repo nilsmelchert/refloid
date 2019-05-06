@@ -2,11 +2,12 @@
 OPTIX_add_sample_executable( nslaift
         main.cpp
 
-        src/device/pinhole_cam.cu
-        src/device/helpers.h
+        src/device/cameras/pinhole_cam.cu
+        src/device/shaders/miss.cu
+        src/device/helpers_gpu.h
         src/device/rt_function.h
-        src/device/per_ray_data.h
-        src/device/random_number_generators.h
+        src/device/per_ray_data_gpu.h
+        src/device/random_number_generators_gpu.h
         src/device/app_config.h
 
         src/host/RT_matrixHelpers.h

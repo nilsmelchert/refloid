@@ -117,8 +117,6 @@ mark_as_advanced(CUDA_NVRTC_FLAGS)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-message("${CMAKE_BINARY_DIR}/lib")
-message("\"${CMAKE_BINARY_DIR}/lib/ptx/\"")
 add_definitions( -DOPTIX_BIN_PATH=\"${CMAKE_BINARY_DIR}/lib/ptx/\")
 add_definitions( -DOPTIX_BASE_PATH=\"${OptiX_INSTALL_DIR}/\")
 
@@ -135,9 +133,10 @@ find_package(OptiX REQUIRED)
 include_directories(
         "${OptiX_INCLUDE}"
         "${CMAKE_SOURCE_DIR}/external_libs/spdlog"
-        "${CMAKE_SOURCE_DIR}/src/host"
+        "${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}/src/host"
+        "${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}/src/device"
+        "${OptiX_INSTALL_DIR}/SDK/cuda"
 )
-
 
 # Select whether to use NVRTC or NVCC to generate PTX
 set(CUDA_NVRTC_ENABLED ON CACHE BOOL "Use NVRTC to compile PTX at run-time instead of NVCC at build-time")
@@ -191,8 +190,8 @@ include_directories(${OptiX_INSTALL_DIR}/SDK/sutil
 
 include(FindSUtilGLUT)
 
-set(SAMPLES_INCLUDE_DIR ${OptiX_INSTALL_DIR}/SDK/cuda)
 
+set(SAMPLES_INCLUDE_DIR ${OptiX_INSTALL_DIR}/SDK/cuda)
 if (EXISTS ${OptiX_INSTALL_DIR}/SDK/support/mdl-sdk/include/mi/mdl_sdk.h)
     # The MDL_SDK wrapper library can only be built when the MDL SDK is available
     add_subdirectory(mdl_wrapper)
@@ -284,7 +283,8 @@ add_subdirectory(nslaift)
 
 # Our sutil library.  The rules to build it are found in the subdirectory.
 # add_subdirectory(sutil)
-add_subdirectory(${OptiX_INSTALL_DIR}/SDK/sutil ${CMAKE_BINARY_DIR}/sutil)
+ add_subdirectory(${OptiX_INSTALL_DIR}/SDK/sutil ${CMAKE_BINARY_DIR}/sutil)
+#add_subdirectory(${OptiX_INSTALL_DIR}/SDK/sutil)
 
 # This copies out dlls into the build directories, so that users no longer need to copy
 # them over in order to run the samples.  This depends on the optixHello sample being compiled.

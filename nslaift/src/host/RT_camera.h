@@ -69,6 +69,10 @@ public:
     virtual optix::float3 centerPosition();
 
     virtual optix::float3 principalAxis();
+
+private:
+
+    optix::Buffer m_bufferOutput;
 };
 
 
