@@ -18,6 +18,7 @@
 #include <optixu/optixu_math_stream_namespace.h>
 #include <optixu_math_namespace.h>
 #include "sutil.h"
+#include "spdlog.h"
 
 // Defines for getting the cmake environment variables in c++
 #ifdef OPTIX_BIN_PATH

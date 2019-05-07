@@ -18,6 +18,5 @@ rtDeclareVariable(optix::Ray, ray, rtCurrentRay, );
 RT_PROGRAM void miss_environment_constant()
 {
     prd_radiance.is_miss = true;
-
     prd_radiance.radiance = miss_color; // Background Color set in Host (black)
 }

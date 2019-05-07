@@ -170,7 +170,7 @@ int RT_camera::updateCache() {
         memcpy(undist, m_undistortion, sizeof(float)*5);
         undistBuff->unmap();
         m_ray_gen_pgrm["undistBuff"]->setBuffer(undistBuff);
-
+        spdlog::debug("Setting ray generation program for entry point index {}", m_iCameraIdx);
         m_context->setRayGenerationProgram(m_iCameraIdx, m_ray_gen_pgrm);
     } else {
         spdlog::error("The camera {0} is currently not supported.", m_iType);

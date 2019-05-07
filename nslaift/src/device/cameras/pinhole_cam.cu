@@ -92,8 +92,8 @@ RT_PROGRAM void camera() {
         }else {
             acc_val = optix::make_float4(prd.radiance, 1.0f);
         }
-
         sysOutputBuffer[launch_index] = make_color( optix::make_float3(acc_val));
+
         sysAccumBuffer[launch_index] = acc_val;
         // Change here for a gamma corrected RGB picture
     }

@@ -1,5 +1,10 @@
 #include "RT_scene.h"
 #include "RT_camera.h"
+#include "zmq.hpp"
+
+#include <cv.h>
+#include <highgui.h>
+#include <opencv2/imgproc/imgproc.hpp>
 
 RT_scene::RT_scene()
 {
@@ -8,6 +13,10 @@ RT_scene::RT_scene()
     setBackgroundColor(optix::make_float3(1.0f, 0.0f, 0.0f));
     initPrograms();
     initOutputBuffers();
+
+
+//    m_context->setPrintEnabled(true);
+//    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
 
     auto cam = new RT_camera(m_context);
     cam->setName("cam1");
@@ -108,15 +117,36 @@ void RT_scene::render(int iterations)
         // Adjusting the size of the output buffer for the currently activated camera
         m_outputBuffer->setSize(m_cameras[cam_idx]->m_iWidth, m_cameras[cam_idx]->m_iHeight);
         m_accumBuffer->setSize(m_cameras[cam_idx]->m_iWidth, m_cameras[cam_idx]->m_iHeight);
+        spdlog::debug("Rendering with {0} with a resolution of {1}x{2}", m_cameras[cam_idx]->m_strName.toUtf8().constData(), m_cameras[cam_idx]->m_iWidth,m_cameras[cam_idx]->m_iHeight);
         for (int iter=0; iter<iterations; iter++)
         {
             m_context->launch(cam_idx, m_cameras[cam_idx]->m_iWidth, m_cameras[cam_idx]->m_iHeight);
         }
     }
     spdlog::info("Rendering is done");
-    std::vector<float> img_data;
+    std::vector<unsigned char> img_data;
     optix::Buffer output_buffer = m_context["sysOutputBuffer"]->getBuffer();
-//    img_data = rthelpers::writeBufferToPipe(output_buffer);
+    img_data = rthelpers::writeBufferToPipe(output_buffer);
+
+    cv::Mat cv_img = cv::Mat(m_cameras[0]->m_iHeight, m_cameras[0]->m_iWidth, CV_8UC3);
+    cv_img.data = img_data.data();
+    cv::imshow("sd", cv_img);
+    cv::waitKey(0);
+
+    // Initialize ZMQ
+    // Prepare our context and publisher
+    void *zmq_context = zmq_ctx_new();
+    void *publisher = zmq_socket(zmq_context, ZMQ_PUB);
+    int msg_nbr = 1; // Maximum Number of messages that can be in buffer queue (high water mark for outbound messages)
+    zmq_setsockopt(publisher, ZMQ_SNDHWM, &msg_nbr, sizeof(msg_nbr));
+    zmq_bind(publisher, "tcp://*:5563");
+    // Sending Data via 0MQ
+    char header[100];
+    sprintf(header, "{\"height\":%d,\"width\":%d,\"dtype\":\"%s\"}", m_cameras[0]->m_iHeight, m_cameras[0]->m_iWidth, "uint8");
+    zmq_send(publisher, "image_data", strlen("image_data"), ZMQ_SNDMORE);
+    zmq_send(publisher, header, strlen(header), ZMQ_SNDMORE);
+    zmq_send(publisher, reinterpret_cast<void *>(img_data.data()), img_data.size(), 0);
+    spdlog::debug("Data was sent");
 }
 
 optix::float3 RT_scene::backgroundColor()

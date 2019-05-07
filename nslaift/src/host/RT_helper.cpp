@@ -115,63 +115,10 @@ std::vector<unsigned char> rthelpers::writeBufferToPipe(RTbuffer buffer)
                 }
             }
             break;
-
-        case RT_FORMAT_FLOAT:
-            // This buffer is upside down
-            for (int j = height - 1; j >= 0; --j) {
-                unsigned char *dst = &pix[0] + width * (height - 1 - j);
-                float *src = ((float *) imageData) + (3 * width * j);
-                for (int i = 0; i < width; i++) {
-                    int P = static_cast<int>((*src++) * 255.0f);
-                    unsigned int Clamped = P < 0 ? 0 : P > 0xff ? 0xff : P;
-
-                    // write the pixel to all 3 channels
-                    *dst++ = static_cast<unsigned char>(Clamped);
-                    *dst++ = static_cast<unsigned char>(Clamped);
-                    *dst++ = static_cast<unsigned char>(Clamped);
-                }
-            }
-            break;
-
-        case RT_FORMAT_FLOAT3:
-            // This buffer is upside down
-            for (int j = height - 1; j >= 0; --j) {
-                unsigned char *dst = &pix[0] + (3 * width * (height - 1 - j));
-                float *src = ((float *) imageData) + (3 * width * j);
-                for (int i = 0; i < width; i++) {
-                    for (int elem = 0; elem < 3; ++elem) {
-                        int P = static_cast<int>((*src++) * 255.0f);
-                        unsigned int Clamped = P < 0 ? 0 : P > 0xff ? 0xff : P;
-                        *dst++ = static_cast<unsigned char>(Clamped);
-                    }
-                }
-            }
-            break;
-
-        case RT_FORMAT_FLOAT4:
-            // This buffer is upside down
-            for (int j = height - 1; j >= 0; --j) {
-                unsigned char *dst = &pix[0] + (3 * width * (height - 1 - j));
-                float *src = ((float *) imageData) + (4 * width * j);
-                for (int i = 0; i < width; i++) {
-                    for (int elem = 0; elem < 3; ++elem) {
-                        int P = static_cast<int>((*src++) * 255.0f);
-                        unsigned int Clamped = P < 0 ? 0 : P > 0xff ? 0xff : P;
-                        *dst++ = static_cast<unsigned char>(Clamped);
-                    }
-
-                    // skip alpha
-                    src++;
-                }
-            }
-            break;
-
         default:
-            fprintf(stderr, "Unrecognized buffer data type or format.\n");
-            exit(2);
+            spdlog::error("Unrecognized buffer data type. Currently only RT_FORMAT_UNSIGNED_BYTE4 is supported");
             break;
     }
-
     // Now unmap the buffer
     RT_CHECK_ERROR(rtBufferUnmap(buffer));
     return pix;

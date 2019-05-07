@@ -129,6 +129,29 @@ endif ()
 # Search for the OptiX libraries and include files.
 find_package(OptiX REQUIRED)
 
+## load in pkg-config support
+find_package(PkgConfig)
+find_package(OpenCV 2 REQUIRED)
+
+# Optional: When IL_FOUND is false after this call, the OptiX introduction samples optixIntro_07 and higher will not be built.
+# find_package(DevIL)
+
+## use pkg-config to get hints for 0mq locations
+pkg_check_modules(PC_ZeroMQ QUIET zmq)
+
+# Search for zeromq
+find_path(ZeroMQ_INCLUDE_DIR
+        NAMES zmq.hpp
+        PATHS ${PC_ZeroMQ_INCLUDE_DIRS}
+        )
+
+## use the hint from about to find the location of libzmq
+
+find_library(ZeroMQ_LIBRARY
+        NAMES zmq
+        PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
+        )
+
 # Add the path to the OptiX headers to our include paths.
 include_directories(
         "${OptiX_INCLUDE}"
@@ -137,6 +160,7 @@ include_directories(
         "${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}/src/device"
         "${OptiX_INSTALL_DIR}/SDK/cuda"
 )
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 # Select whether to use NVRTC or NVCC to generate PTX
 set(CUDA_NVRTC_ENABLED ON CACHE BOOL "Use NVRTC to compile PTX at run-time instead of NVCC at build-time")
@@ -262,9 +286,11 @@ function(OPTIX_add_sample_executable target_name)
     #glfw
 
     target_link_libraries(${target_name}
+            ${OpenCV_LIBS}
             Qt5::Widgets
             sutil_sdk
             optix
+            ${ZeroMQ_LIBRARY}
             ${optix_rpath}
             )
     if (USING_GNU_CXX)
