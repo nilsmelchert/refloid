@@ -4,11 +4,13 @@ OPTIX_add_sample_executable( nslaift
 
         src/device/cameras/pinhole_cam.cu
         src/device/shaders/miss.cu
-        src/device/helpers_gpu.h
-        src/device/rt_function.h
-        src/device/per_ray_data_gpu.h
-        src/device/random_number_generators_gpu.h
-        src/device/app_config.h
+        src/device/intersection_programs/sphere_intersect.cu
+        src/device/shaders/ch_ah_programs/ch_normal.cu
+        src/device/includes/helpers_gpu.h
+        src/device/includes/rt_function.h
+        src/device/includes/per_ray_data_gpu.h
+        src/device/includes/random_number_generators_gpu.h
+        src/device/includes/app_config.h
 
         src/host/RT_matrixHelpers.h
         src/host/RT_matrixHelpers.cpp

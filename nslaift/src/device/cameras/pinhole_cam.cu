@@ -4,9 +4,9 @@
 #include <valarray>
 #include <optix_world.h>
 
-#include "helpers_gpu.h"
-#include "per_ray_data_gpu.h"
-#include "random_number_generators_gpu.h"
+#include "includes/helpers_gpu.h"
+#include "includes/per_ray_data_gpu.h"
+#include "includes/random_number_generators_gpu.h"
 
 rtDeclareVariable(unsigned int, entry_point_id, ,);
 rtDeclareVariable(int, parCameraIndex,,);
@@ -41,7 +41,6 @@ RT_FUNCTION void distort_pixels(float2 &uv);
 RT_FUNCTION optix::float3 calculate_ray_direction(float2 &uv);
 
 RT_PROGRAM void camera() {
-
     optix::size_t2 screen = sysOutputBuffer.size();
 
     // Convert pixel so that it follows the OpenCV convention

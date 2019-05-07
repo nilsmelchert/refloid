@@ -1,5 +1,6 @@
 #include "RT_scene.h"
 #include "RT_camera.h"
+#include "RT_sphere.h"
 #include "zmq.hpp"
 
 #include <cv.h>
@@ -13,15 +14,18 @@ RT_scene::RT_scene()
     initPrograms();
     initOutputBuffers();
 
-    createObject("cam1", "camera");
-    createObject("cam2", "camera");
-    manipulateObject("cam1", "resolution", "400x400");
-    manipulateObject("cam2", "resolution", "800x400");
+    m_context->setPrintEnabled(true);
+    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
 
-    setBackgroundColor(1.0f, 0.0f, 0.0f);
+    auto cam = new RT_camera(m_context);
+    cam->m_strName = "cam1";
+    cam->updateCache();
+    addCamera(cam);
 
-    updateCaches();
-    render();
+    auto sphere = new RT_sphere(m_context, m_rootGroup);
+//    sphere->translate(0.0f,0.0f,0.0f);
+//    sphere->translate(0.0f,0.0f,0.5f);
+    sphere->updateCache();
 }
 
 RT_scene::~RT_scene()

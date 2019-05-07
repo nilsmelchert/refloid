@@ -14,6 +14,12 @@ RT_camera::RT_camera(optix::Context &context, RT_object *parent) :
     m_context->setEntryPointCount(m_iCameraIdx + 1);
     spdlog::debug("Creating camera object with entry point index {0}", m_iCameraIdx);
 
+    std::string ptx_path_rgp(rthelpers::ptxPath("pinhole_cam.cu")); // ptx path ray generation program
+    m_ray_gen_pgrm = m_context->createProgramFromPTXFile(ptx_path_rgp, "camera");
+    spdlog::debug("Setting ray generation program for entry point index {}", m_iCameraIdx);
+    //TODO: MAYBE THIS NEEDS TO BE UPDATED IN updateCache()
+    m_context->setRayGenerationProgram(m_iCameraIdx, m_ray_gen_pgrm);
+
     m_iType = TypePinhole;
 
     // Setting default camera parameters
@@ -148,8 +154,6 @@ int RT_camera::updateCache() {
     }
     if (m_iType == TypePinhole)
     {
-        std::string ptx_path_rgp(rthelpers::ptxPath("pinhole_cam.cu")); // ptx path ray generation program
-        m_ray_gen_pgrm = m_context->createProgramFromPTXFile(ptx_path_rgp, "camera");
         m_ray_gen_pgrm["width"]->setUint(m_iWidth);
         m_ray_gen_pgrm["height"]->setUint(m_iHeight);
         m_ray_gen_pgrm["Rt"]->setMatrix4x4fv(false, m_transform.getData());
@@ -170,8 +174,6 @@ int RT_camera::updateCache() {
         memcpy(undist, m_undistortion, sizeof(float)*5);
         undistBuff->unmap();
         m_ray_gen_pgrm["undistBuff"]->setBuffer(undistBuff);
-        spdlog::debug("Setting ray generation program for entry point index {}", m_iCameraIdx);
-        m_context->setRayGenerationProgram(m_iCameraIdx, m_ray_gen_pgrm);
     } else {
         spdlog::error("The camera {0} is currently not supported.", m_iType);
     }

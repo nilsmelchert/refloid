@@ -9,7 +9,7 @@
 #include <optixu/optixu_math_namespace.h>
 #include <optix_cuda.h>
 
-#include "per_ray_data_gpu.h"
+#include "includes/per_ray_data_gpu.h"
 
 rtDeclareVariable(PerRayData_radiance, prd_radiance, rtPayload, );
 rtDeclareVariable(float3, miss_color, , );

@@ -19,5 +19,13 @@ int main(){
     spdlog::info("Starting raytracing test application");
     auto Scene = new RT_scene();
 
+    Scene->setBackgroundColor(0.7f, 0.7f, 0.7f);
+
+//    Scene->createObject("cam1", "camera");
+//    Scene->manipulateObject("cam1", "resolution", "400x400");
+
+
+    Scene->updateCaches();
+    Scene->render();
     return 0;
 }
