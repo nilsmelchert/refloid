@@ -29,6 +29,7 @@ public:
     // delete all content in the scene
     int clear(bool destroy = true);
     RT_object* createObject(const QString &name, const QString &objType, const QString &objParams);
+    RT_object* createObject(const QString &name, const QString &objType);
 
     ///< for dynamic interaction! enable the expression manipulate("sphere1", "translate", "43,2,-5");
     int manipulateObject(const QString &name,const QString &action,const QString &parameters);
@@ -60,10 +61,11 @@ public:
 //    int         lightSourceIndex(const RT_lightSource* pSource) const;
 //    QString     lightSourceName(int idx) const;
 //
-//    RT_object*   findObject(const QString& name) const;
+    RT_object*   findObject(const QString& name) const;
 //    int         deleteObject(const QString& name);
 //
     void setBackgroundColor(const optix::float3 &col);
+    void setBackgroundColor(float x, float y, float z);
     optix::float3 backgroundColor();
 //
 //    bool    checkScene();

@@ -50,7 +50,7 @@ public:
 
     virtual int projectionType();
 
-    virtual int setSensorResolution(unsigned int iWidth, unsigned int iHeight);
+    virtual int setResolution(unsigned int iWidth, unsigned int iHeight);
 
     virtual int setIntrinsics(const optix::Matrix4x4 &mat);
 

@@ -14,7 +14,7 @@ RT_camera::RT_camera(optix::Context &context, RT_object *parent) :
     m_context->setEntryPointCount(m_iCameraIdx + 1);
     spdlog::debug("Creating camera object with entry point index {0}", m_iCameraIdx);
 
-    m_iType = TypeUnConfig;
+    m_iType = TypePinhole;
 
     // Setting default camera parameters
     spdlog::debug("Setting default camera parameters for cam with entry point index {0}", m_iCameraIdx);
@@ -64,7 +64,7 @@ int RT_camera::projectionType() {
   @return   returns zero on success, non-zero on error
 
   **/
-int RT_camera::setSensorResolution(unsigned int iWidth, unsigned int iHeight) {
+int RT_camera::setResolution(unsigned int iWidth, unsigned int iHeight) {
     spdlog::debug("Setting resolution for camera {0}", m_strName.toUtf8().constData());
     if (iWidth <= 0 || iHeight <= 0) {
         spdlog::error("Invalid (non-positive) parameters given");
@@ -197,8 +197,24 @@ optix::float3 RT_camera::principalAxis() {
     return optix::make_float3(m_transform[2], m_transform[6], m_transform[10]);
 }
 
+/**
+  @brief    parse parameters
+  @param    action  string describing action to perform
+  @param    params  action parameters
+  @return   0 on success, negative on error, positive if action not found (use child class action)
+
+  first all "local" actions are looked up, if none found then base class RTobject::parseActions() is called
+  **/
 int RT_camera::parseActions(const QString &action, const QString &parameters) {
     spdlog::debug("Parsing parameter {0} for action {1} on camera object {2}", parameters.toUtf8().constData(),
                   action.toUtf8().constData(), m_strName.toUtf8().constData());
+    if((0 == action.compare("setResolution", Qt::CaseInsensitive)) || (0 == action.compare("resolution", Qt::CaseInsensitive)))
+    {
+        int width, height;
+        if (0 == rthelpers::RT_parse2int(parameters, &width, &height, "x"))
+        {
+            setResolution(width, height);
+        }
+    }
     return 0;
 }

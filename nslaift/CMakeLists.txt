@@ -20,6 +20,8 @@ OPTIX_add_sample_executable( nslaift
         src/host/RT_scene.cpp
         src/host/RT_object.h
         src/host/RT_object.cpp
+        src/host/RT_sphere.h
+        src/host/RT_sphere.cpp
   )
 
 

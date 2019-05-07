@@ -10,20 +10,15 @@ RT_scene::RT_scene()
 {
     // Setting up the node graph following the optix conventions
     setupContext();
-    setBackgroundColor(optix::make_float3(1.0f, 0.0f, 0.0f));
     initPrograms();
     initOutputBuffers();
 
+    createObject("cam1", "camera");
+    createObject("cam2", "camera");
+    manipulateObject("cam1", "resolution", "400x400");
+    manipulateObject("cam2", "resolution", "800x400");
 
-//    m_context->setPrintEnabled(true);
-//    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
-
-    auto cam = new RT_camera(m_context);
-    cam->setName("cam1");
-    cam->setProjectionType(1);
-    cam->updateCache();
-    addCamera(cam);
-
+    setBackgroundColor(1.0f, 0.0f, 0.0f);
 
     updateCaches();
     render();
@@ -54,7 +49,6 @@ void RT_scene::setupContext()
     m_rootGroup = m_context->createGroup();
     m_rootGroup->setAcceleration(m_context->createAcceleration("Trbvh"));
     m_context["sysTopObject"]->set(m_rootGroup);
-
 }
 
 void RT_scene::initPrograms()
@@ -62,7 +56,6 @@ void RT_scene::initPrograms()
     spdlog::debug("Initializing miss program");
     std::string ptx_path_mpg(rthelpers::ptxPath("miss.cu")); // ptx path to miss program
     m_miss_program = m_context->createProgramFromPTXFile(ptx_path_mpg, "miss_environment_constant");
-    spdlog::debug("Setting rgb color: r:{0}, g:{1}, b:{2} as background color", m_colBackground.x, m_colBackground.y, m_colBackground.z);
     m_miss_program["miss_color"]->setFloat(m_colBackground);
     m_context->setMissProgram(0, m_miss_program);
     // TODO: Define exception program here
@@ -83,30 +76,114 @@ int RT_scene::clear(bool destroy)
     return 0;
 }
 
+/**
+  @brief  create a new object and add it to the scene
+  @param  objName    unique object name
+  @param  objType    type of object to create
+  @param  objParams  creation-essential parameters; other parameters are to be set via "manipulateObject"
+  @return  reference to the object, if creation was successfull; Null if there was some error preventing object creation.
+  **/
 RT_object *RT_scene::createObject(const QString &name, const QString &objType, const QString &objParams)
 {
+    if (name.isEmpty()){
+        spdlog::error("Object not named");
+        return nullptr;
+    }
+    if (findObject(name) != nullptr) {
+        spdlog::error("Object with that name {0} already exists! Not rendering for this camera.", name.toUtf8().constData());
+        return nullptr;
+    }
+    // camera objects
+    if(0 == objType.compare("camera", Qt::CaseInsensitive)) {
+        auto* cam = new RT_camera(m_context);
+        if (!objParams.isEmpty()) {
+            //TODO: implement parsing intrinsics and extrinsics
+        } else {
+            spdlog::debug("No object parameters were given for camera object: {}", cam->m_strName.toUtf8().constData());
+        }
+        cam->setName(name);
+        addCamera(cam);
+    }
+
     return nullptr;
 }
 
-int RT_scene::manipulateObject(const QString &name, const QString &action, const QString &parameters)
+RT_object *RT_scene::createObject(const QString &name, const QString &objType)
 {
-    return 0;
+    return createObject(name, objType, "");
 }
 
+/**
+  @brief    manipulate some object called by name
+  @param    name        name of object
+  @param    action      action to perform, "translate", "rotate", "setVisible", etc...
+  @param    parameters  parameter string, e.g. "0, -45,0"
+  @return   0 on success, error-code on failure
+  **/
+int RT_scene::manipulateObject(const QString &name, const QString &action, const QString &parameters)
+{
+    RT_object *object = findObject(name);
+    if(object) {
+        return manipulateObject(object, action, parameters);
+    } else {
+        spdlog::error("Object {1} not found", name.toUtf8().constData());
+        return -1;
+    }
+}
+
+/**
+  @brief    manipulate some object (light, camera, object)
+  @param    obj         pointer to object
+  @param    action      action to perform, "translate", "rotate", "setVisible", etc...
+  @param    parameters  parameter string, e.g. "0, -45,0"
+  @return   0 on success, error-code on failure
+
+  manipulators (action, parameters):
+
+  All objects implement their own manipulators via "parseActions"
+  **/
 int RT_scene::manipulateObject(RT_object *object, const QString &action, const QString &parameters)
 {
+    if (nullptr == dynamic_cast<RT_object*>(object)) {
+        spdlog::debug("Object {0} is not derived from RT_object", QString::number(reinterpret_cast<size_t>(object)).toUtf8().constData());
+        return -1;
+    }
+    if (action.isEmpty()) {
+        spdlog::debug("No action given");
+        return -2;
+    }
+    int ret = object->parseActions(action, parameters);
+    if(ret > 0) { //action not found
+        spdlog::debug("action {0} erroneous/not known, cannot manipulate object {1} (retcode: {2})", action.toUtf8().constData(), object->m_strName.toUtf8().constData(), ret);
+        return -3;
+    }
     return 0;
 }
 
 int RT_scene::updateCaches(bool force)
 {
+    // Updating background color in the miss program
+    m_miss_program["miss_color"]->setFloat(m_colBackground);
+
+    for (int cam_idx=0; cam_idx<m_cameras.size(); cam_idx++){
+        m_cameras[cam_idx]->updateCache();
+    }
+
+    // Checking if everything was configured correctly in the optix context
     m_context->validate();
     spdlog::info("Context was successfully validated");
 }
 
 void RT_scene::setBackgroundColor(const optix::float3 &col)
 {
+    spdlog::debug("Setting background color to r:{}, g:{}, b:{}", col.x, col.y, col.z);
     m_colBackground = col;
+}
+
+void RT_scene::setBackgroundColor(float x, float y, float z)
+{
+    optix::float3 background = optix::make_float3(x, y, z);
+    setBackgroundColor(background);
 }
 
 void RT_scene::render(int iterations)
@@ -122,36 +199,43 @@ void RT_scene::render(int iterations)
         {
             m_context->launch(cam_idx, m_cameras[cam_idx]->m_iWidth, m_cameras[cam_idx]->m_iHeight);
         }
+        spdlog::info("Rendering with {0} with a resolution of {1}x{2} is DONE!", m_cameras[cam_idx]->m_strName.toUtf8().constData(), m_cameras[cam_idx]->m_iWidth,m_cameras[cam_idx]->m_iHeight);
+        std::vector<unsigned char> img_data;
+        optix::Buffer output_buffer = m_context["sysOutputBuffer"]->getBuffer();
+        img_data = rthelpers::writeBufferToPipe(output_buffer);
+        cv::Mat cv_img = cv::Mat(m_cameras[cam_idx]->m_iHeight, m_cameras[cam_idx]->m_iWidth, CV_8UC3);
+        cv_img.data = img_data.data();
+        cv::imshow("rendered_image", cv_img);
+        cv::waitKey(0);
+        cv::imwrite("/tmp/render.png", cv_img);
     }
-    spdlog::info("Rendering is done");
-    std::vector<unsigned char> img_data;
-    optix::Buffer output_buffer = m_context["sysOutputBuffer"]->getBuffer();
-    img_data = rthelpers::writeBufferToPipe(output_buffer);
 
-    cv::Mat cv_img = cv::Mat(m_cameras[0]->m_iHeight, m_cameras[0]->m_iWidth, CV_8UC3);
-    cv_img.data = img_data.data();
-    cv::imshow("sd", cv_img);
-    cv::waitKey(0);
-
-    // Initialize ZMQ
-    // Prepare our context and publisher
-    void *zmq_context = zmq_ctx_new();
-    void *publisher = zmq_socket(zmq_context, ZMQ_PUB);
-    int msg_nbr = 1; // Maximum Number of messages that can be in buffer queue (high water mark for outbound messages)
-    zmq_setsockopt(publisher, ZMQ_SNDHWM, &msg_nbr, sizeof(msg_nbr));
-    zmq_bind(publisher, "tcp://*:5563");
-    // Sending Data via 0MQ
-    char header[100];
-    sprintf(header, "{\"height\":%d,\"width\":%d,\"dtype\":\"%s\"}", m_cameras[0]->m_iHeight, m_cameras[0]->m_iWidth, "uint8");
-    zmq_send(publisher, "image_data", strlen("image_data"), ZMQ_SNDMORE);
-    zmq_send(publisher, header, strlen(header), ZMQ_SNDMORE);
-    zmq_send(publisher, reinterpret_cast<void *>(img_data.data()), img_data.size(), 0);
-    spdlog::debug("Data was sent");
 }
 
 optix::float3 RT_scene::backgroundColor()
 {
     return m_colBackground;
+}
+
+/**
+  @return   find object (of any kind) within scene and return pointer to it
+  @param    name    object name
+  @return   pointer to object, or NULL if object not found within scene
+  **/
+RT_object*   RT_scene::findObject(const QString& name) const
+{
+    int idx = 0;
+    if ( (idx = cameraIndex(name)) >= 0) {
+        return camera(idx);
+    }
+    //TODO: IMPLEMENT
+//    if ( (idx = objectIndex(name)) >= 0) {
+//        return object(idx);
+//    }
+//    if ( (idx = lightSourceIndex(name)) >= 0) {
+//        return lightSource(idx);
+//    }
+    return nullptr;
 }
 
 ///////////////// begin: camera handlers ////////////////
@@ -284,6 +368,8 @@ QString RT_scene::cameraName(int idx) const
         return QString();
     return  m_cameras.at(idx)->name();
 }
+
+
 
 
 //    m_top_group = m_context->createGroup();

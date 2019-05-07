@@ -123,3 +123,62 @@ std::vector<unsigned char> rthelpers::writeBufferToPipe(RTbuffer buffer)
     RT_CHECK_ERROR(rtBufferUnmap(buffer));
     return pix;
 }
+
+/**
+  @brief    parse a comma separated string 2-vector of the form "1.2, 4" into  its 2 double values
+  @param    str string to decompose
+  @param    x   target for first element
+  @param    y   target for second element
+  @return   returns 0 on success, non-zero on errors
+  **/
+int rthelpers::RT_parse2double(const QString &str, double *x, double *y, const QString &delimiter /*= QString(",")*/)
+{
+    if(x == nullptr || y == nullptr)
+        return -1;
+
+    QStringList sList = str.split(delimiter);
+    if (sList.count() != 2) {
+        *x = 0;
+        *y = 0;
+        return -2;
+    }
+    bool ok = false;
+    *x = sList.at(0).toDouble(&ok);
+    if (!ok)
+        return -3;
+    *y = sList.at(1).toDouble(&ok);
+    if (!ok)
+        return -4;
+    return 0;
+}
+
+/**
+  @brief    parse a comma separated string 3-vector of the form "1.2,43, -12.455" into  its 3 double values
+  @param    str string to decompose
+  @param    x   target for first element
+  @param    y   target for second element
+  @param    z   target for third element
+  @return   returns 0 on success, non-zero on errors
+  **/
+int rthelpers::RT_parse2int(const QString &str, int *x, int *y, const QString &delimiter /*= QString(",")*/)
+{
+    if(x == nullptr || y == nullptr)
+        return -1;
+
+    QStringList sList = str.split(delimiter);
+    if (sList.count() != 2) {
+        *x = 0;
+        *y = 0;
+        return -2;
+    }
+    bool ok = false;
+    *x = sList.at(0).toInt(&ok);
+    if (!ok)
+        return -3;
+
+    *y = sList.at(1).toInt(&ok);
+    if (!ok)
+        return -4;
+
+    return 0;
+}

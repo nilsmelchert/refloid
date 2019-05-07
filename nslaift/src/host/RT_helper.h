@@ -41,6 +41,8 @@ namespace rthelpers{
     std::string printMat4x4(optix::Matrix4x4& mat);
     std::vector<unsigned char> writeBufferToPipe(optix::Buffer buffer);
     std::vector<unsigned char> writeBufferToPipe(RTbuffer buffer);
+    int RT_parse2double(const QString &str, double *x, double *y, const QString &delimiter /*= QString(",")*/);
+    int RT_parse2int(const QString &str, int *x, int *y, const QString &delimiter /*= QString(",")*/);
 }
 
 #endif //NSLAIFT_RT_HELPER_H
