@@ -44,7 +44,6 @@ RT_sphere::RT_sphere(optix::Context &context, optix::Group &root_group, RT_objec
     spdlog::debug("Assigning transform of sphere object to top group");
     m_rootGroup->setChildCount(m_rootGroup->getChildCount()+1);
     m_rootGroup->setChild(m_rootGroup->getChildCount()-1, m_transform_optix);
-    spdlog::debug("Assigning transform of sphere object to top group");
 }
 
 void RT_sphere::setRadius(float r) {
@@ -56,4 +55,32 @@ int RT_sphere::updateCache() {
     m_bounding_box_program["radius"]->setFloat(m_radius);
     m_intersection_program["Rt"]->setMatrix4x4fv(false, m_transform.getData());
     m_bounding_box_program["Rt"]->setMatrix4x4fv(false, m_transform.getData());
+}
+
+/**
+  @brief    parse parameters
+  @param    action  string describing action to perform
+  @param    params  action parameters
+  @return   0 on success, negative on error, positive if action not found (use child class action)
+
+  first all "local" actions are looked up, if none found then base class RTobject::parseActions() is called
+  **/
+int RT_sphere::parseActions(const QString &action, const QString &parameters) {
+    spdlog::debug("Parsing parameter {0} for action {1} on camera object {2}", parameters.toUtf8().constData(),
+                  action.toUtf8().constData(), m_strName.toUtf8().constData());
+    if((0 == action.compare("setRadius", Qt::CaseInsensitive)) || (0 == action.compare("radius", Qt::CaseInsensitive)))
+    {
+        bool ok = false;
+        float radius = parameters.toFloat(&ok);
+        if (ok)
+        {
+            setRadius(radius);
+        } else {
+            spdlog::error("Could not convert the entered radius to float for sphere object");
+        }
+    } else {
+        int ret = RT_object::parseActions(action, parameters);
+        return ret;
+    }
+    return 0;
 }

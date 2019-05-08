@@ -327,7 +327,7 @@ const optix::float3 RT_object::position() const {
   @return   0 on success, negative on error, positive if action not found (use child class action)
   **/
 int RT_object::parseActions(const QString &action, const QString &parameters) {
-    spdlog::debug("Parsing the following action to RT_object {0}: \naction={1}; parameters={2}", m_strName.toUtf8().constData(), action.toUtf8().constData(), parameters.toUtf8().constData());
+    spdlog::debug("Parsing the following action to RT_object {0}: action={1}; parameters={2}", m_strName.toUtf8().constData(), action.toUtf8().constData(), parameters.toUtf8().constData());
 
     if(0 == action.compare("reset", Qt::CaseInsensitive)) {
         reset();

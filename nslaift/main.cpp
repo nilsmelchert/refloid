@@ -21,14 +21,27 @@ int main(){
 
     Scene->setBackgroundColor(0.7f, 0.7f, 0.7f);
 
-//    Scene->createObject("cam1", "camera");
-//    Scene->createObject("cam2", "camera");
-//    Scene->manipulateObject("cam2", "translate", "0.0f,0.0f,-1.0f");
-//    Scene->manipulateObject("cam2", "resolution", "800x800");
-//    Scene->manipulateObject("cam1", "resolution", "400x400");
+    Scene->createObject("cam1", "camera");
 
+    Scene->createObject("cam2", "camera");
+    Scene->manipulateObject("cam2", "translate", "-1.0, 0.0, 0.0");
+    Scene->manipulateObject("cam2", "spin", "0.0, 45.0, 0.0");
+
+    Scene->createObject("cam3", "camera");
+    Scene->manipulateObject("cam3", "translate", "0.0, -20.0, 0.0");
+    Scene->manipulateObject("cam3", "spin", "-90.0, 0.0, 0.0");
+
+    Scene->createObject("sphere1", "sphere");
+    Scene->manipulateObject("sphere1", "translate", "0.0, 0.0, 1.0");
+
+    Scene->createObject("sphere2", "sphere");
+    Scene->manipulateObject("sphere2", "translate", "0.0, 0.15, 1.0");
+
+    Scene->createObject("sphere3", "sphere");
+    Scene->manipulateObject("sphere3", "translate", "0.0, 1.5, 6.0");
+    Scene->manipulateObject("sphere3", "radius", "4.0");
 
     Scene->updateCaches();
-    Scene->render();
+    Scene->render(100);
     return 0;
 }

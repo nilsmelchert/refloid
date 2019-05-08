@@ -13,26 +13,6 @@ RT_scene::RT_scene()
     setupContext();
     initPrograms();
     initOutputBuffers();
-
-    auto cam1 = new RT_camera(m_context);
-    cam1->updateCache();
-    addCamera(cam1);
-    auto cam2 = new RT_camera(m_context);
-    cam2->m_transform[11] = -1.0f;
-    cam2->updateCache();
-    addCamera(cam2);
-    auto cam3 = new RT_camera(m_context);
-    cam3->rotate(5.0,0.0,0.0);
-    cam3->updateCache();
-    addCamera(cam3);
-
-    auto sphere = new RT_sphere(m_context, m_rootGroup);
-    sphere->translate(0.0f,0.0f,1.0f);
-    sphere->updateCache();
-    auto sphere2 = new RT_sphere(m_context, m_rootGroup);
-    sphere2->m_radius = 0.2;
-    sphere2->translate(0.0f,0.15f,1.0f);
-    sphere2->updateCache();
 }
 
 RT_scene::~RT_scene()
@@ -116,8 +96,16 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType, c
         }
         cam->setName(name);
         addCamera(cam);
+    } else if (0 == objType.compare("sphere", Qt::CaseInsensitive)) {
+        auto* sphere = new RT_sphere(m_context, m_rootGroup);
+        if (!objParams.isEmpty()) {
+            // TODO: implement setting radius
+        } else {
+            spdlog::debug("No object parameters were given for sphere object: {}", sphere->m_strName.toUtf8().constData());
+        }
+        sphere->setName(name);
+        addObject(sphere);
     }
-
     return nullptr;
 }
 
@@ -158,16 +146,16 @@ int RT_scene::manipulateObject(const QString &name, const QString &action, const
 int RT_scene::manipulateObject(RT_object *object, const QString &action, const QString &parameters)
 {
     if (nullptr == dynamic_cast<RT_object*>(object)) {
-        spdlog::debug("Object {0} is not derived from RT_object", QString::number(reinterpret_cast<size_t>(object)).toUtf8().constData());
+        spdlog::warn("Object {0} is not derived from RT_object", QString::number(reinterpret_cast<size_t>(object)).toUtf8().constData());
         return -1;
     }
     if (action.isEmpty()) {
-        spdlog::debug("No action given");
+        spdlog::warn("No action given");
         return -2;
     }
     int ret = object->parseActions(action, parameters);
     if(ret > 0) { //action not found
-        spdlog::debug("action {0} erroneous/not known, cannot manipulate object {1} (retcode: {2})", action.toUtf8().constData(), object->m_strName.toUtf8().constData(), ret);
+        spdlog::error("action {0} erroneous/not known, cannot manipulate object {1} (retcode: {2})", action.toUtf8().constData(), object->m_strName.toUtf8().constData(), ret);
         return -3;
     }
     return 0;
@@ -180,6 +168,9 @@ int RT_scene::updateCaches(bool force)
 
     for (int cam_idx=0; cam_idx<m_cameras.size(); cam_idx++){
         m_cameras[cam_idx]->updateCache();
+    }
+    for (int obj_idx=0; obj_idx<m_objects.size(); obj_idx++){
+        m_objects[obj_idx]->updateCache();
     }
 
     // Checking if everything was configured correctly in the optix context
@@ -233,7 +224,7 @@ optix::float3 RT_scene::backgroundColor()
 /**
   @return   find object (of any kind) within scene and return pointer to it
   @param    name    object name
-  @return   pointer to object, or NULL if object not found within scene
+  @return   pointer to object, or nullptr if object not found within scene
   **/
 RT_object*   RT_scene::findObject(const QString& name) const
 {
@@ -241,10 +232,10 @@ RT_object*   RT_scene::findObject(const QString& name) const
     if ( (idx = cameraIndex(name)) >= 0) {
         return camera(idx);
     }
+    if ( (idx = objectIndex(name)) >= 0) {
+        return object(idx);
+    }
     //TODO: IMPLEMENT
-//    if ( (idx = objectIndex(name)) >= 0) {
-//        return object(idx);
-//    }
 //    if ( (idx = lightSourceIndex(name)) >= 0) {
 //        return lightSource(idx);
 //    }
@@ -285,6 +276,8 @@ int RT_scene::addCamera(RT_camera *cam)
     }
 }
 
+
+
 /**
   @brief    determine camera count
   @return   number of camera in vector m_cameras
@@ -297,7 +290,7 @@ int RT_scene::countCameras() const
 /**
   @brief    get pointer to Camera from scene
   @param    idx index of Camera
-  @return   pointer to the Camera or NULL if idx out of range
+  @return   pointer to the Camera or nullptr if idx out of range
   **/
 RT_camera*   RT_scene::camera(int idx) const
 {
@@ -381,26 +374,107 @@ QString RT_scene::cameraName(int idx) const
         return QString();
     return  m_cameras.at(idx)->name();
 }
+///////////////// end: camera handlers ////////////////
 
+///////////////// begin: object handlers ////////////////
 
+/**
+  @brief    add a RT_object to the scene, object can also be RT_objectGroup
+  @param    obj pointer to object to add to scene
+  @return   >= 0: object id (index in vector)
+            < 0: error
 
+   -objects cannot be added twice (same pointer not allowed more than once)
+   -two objects cannot share the exactly same name(!); empty names will be auto-filled by address-to-textstring
+ **/
+int RT_scene::addObject(RT_object *obj)
+{
+    if (nullptr != dynamic_cast<RT_object*> (obj)) {
+        if (obj->m_strName.isEmpty()) {               //no object name, use pointer address as an object name
+            obj->m_strName = QString::number( reinterpret_cast<size_t> (obj), 16);
+        }
+        if (objectIndex(obj->name()) >= 0) {     //if object already known by name
+            return -1;
+        }
+        if (objectIndex(obj) >= 0) {             //object already added, return its index
+            return objectIndex(obj);
+        }
 
-//    m_top_group = m_context->createGroup();
-//    // Setting acceleration structure fot the top group
-//    m_top_group->setAcceleration(m_context->createAcceleration("Trbvh"));
-//    // TODO: ChildCount should not be hard coded. For now only one geometry is possible in the scene.
-//    m_top_group->setChildCount(1);
-//    // Setting Acceleration for geometry group
-//    optix::GeometryGroup geom_group = m_context->createGeometryGroup();
-//    geom_group->setAcceleration(m_context->createAcceleration("Trbvh"));
-//    geom_group->setChildCount(1);
-//    optix::GeometryInstance geom_inst = m_context->createGeometryInstance();
-//    OptiXMesh mesh;
-//    std::string file_name = "/home/melchert/Desktop/raytracing/refloid/res/data/turbineblade_sample.ply";
-//    mesh.context = m_context;
-//    std::string ptx_path_ipg(rthelpers::ptxPath("triangle_mesh.cu")); // ptx path ray generation program
-//    mesh.intersection = m_context->createProgramFromPTXFile(ptx_path_ipg, "mesh_intersect_refine");
-//    mesh.bounds = m_context->createProgramFromPTXFile(ptx_path_ipg, "mesh_bounds");
-//    loadMesh(file_name, mesh);
-//    geom_inst = mesh.geom_instance;
-//    geom_inst->setMaterial(0, );
+        m_objects.push_back(obj);                   //it's really a new one; add its
+        return m_objects.size() - 1;
+    } else {
+        return -1;
+    }
+}
+
+/**
+  @brief    determine object count
+  @return   number of objects in vector m_objects
+
+  RT_objectGroups contained in m_objects count as one element
+
+  **/
+int RT_scene::countObjects() const
+{
+    return m_objects.size();
+}
+
+/**
+  @brief    get pointer to object from scene
+  @param    idx index of object
+  @return   pointer to the object or nullptr if idx out of range
+  **/
+RT_object*   RT_scene::object(int idx) const
+{
+    if (idx < 0)
+        return nullptr;
+    if (idx >= m_objects.size())
+        return nullptr;
+    return m_objects[idx];
+}
+
+/**
+  @brief    get object index from object name
+  @param    name    name of object to look for
+  @return   >= 0: index of object
+            <0: named object not found
+  **/
+int RT_scene::objectIndex(const QString& name) const
+{
+    for(int i = 0; i < m_objects.size(); i++) {
+        if( 0 == name.compare( m_objects.at(i)->m_strName, Qt::CaseInsensitive )) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/**
+  @brief    get object index from object memory location
+  @param    pObject   pointer to object
+  @return   >= 0: index of object
+            <0:  object not in this list
+  **/
+int RT_scene::objectIndex(const RT_object* pObject) const
+{
+    for(int i = 0; i < m_objects.size(); i++) {
+        if( (m_objects.at(i)) == pObject ) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/**
+  @brief    get name of object
+  @param    idx object index
+  @return   the object's name
+  **/
+QString RT_scene::objectName(int idx) const
+{
+    if (idx < 0)
+        return QString();
+    if (idx >= m_objects.size())
+        return QString();
+    return  m_objects.at(idx)->name();
+}

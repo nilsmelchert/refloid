@@ -44,15 +44,14 @@ public:
     int       cameraIndex(const QString& name) const;
     QString   cameraName(int idx) const;
 
-//    int         addObject(RT_object *obj);     // return id
-//    int         countObjects() const;
-//    int         removeObject(int idx);
-//    RT_object*   object(int idx) const;
-//    int         objectIndex(const QString& name) const;
-//    int         objectIndex(const RT_object* pObject) const;
-//    QString     objectName(int idx) const;
-//
-//
+    int         addObject(RT_object *obj);     // return id
+    int         countObjects() const;
+    RT_object*   object(int idx) const;
+    int         objectIndex(const QString& name) const;
+    int         objectIndex(const RT_object* pObject) const;
+    QString     objectName(int idx) const;
+
+
 //    int         addLightSource(RT_lightSource *l);
 //    int         countLightSources() const;
 //    int         removeLightSource(int idx);

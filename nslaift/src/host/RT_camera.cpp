@@ -217,6 +217,9 @@ int RT_camera::parseActions(const QString &action, const QString &parameters) {
         {
             setResolution(width, height);
         }
+    } else {
+        int ret = RT_object::parseActions(action, parameters);
+        return ret;
     }
     return 0;
 }

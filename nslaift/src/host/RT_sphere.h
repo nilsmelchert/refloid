@@ -12,6 +12,7 @@ public:
 
 public:
     virtual int updateCache();
+    virtual int parseActions(const QString &action, const QString &parameters);
 
     void setRadius(float r);
 
