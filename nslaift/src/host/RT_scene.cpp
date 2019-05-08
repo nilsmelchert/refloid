@@ -209,9 +209,12 @@ void RT_scene::render(int iterations)
         img_data = rthelpers::writeBufferToPipe(output_buffer);
         cv::Mat cv_img = cv::Mat(m_cameras[cam_idx]->m_iHeight, m_cameras[cam_idx]->m_iWidth, CV_8UC3);
         cv_img.data = img_data.data();
-        cv::imshow("rendered_image", cv_img);
-        cv::waitKey(0);
-        cv::imwrite("/tmp/render.png", cv_img);
+//        cv::imshow("rendered_image", cv_img);
+//        cv::waitKey(1);
+        QString img_path = "/tmp/render";
+        img_path.append(QString::number(m_render_counter)).append(".png");
+        cv::imwrite(img_path.toStdString().c_str(), cv_img);
+        m_render_counter++;
     }
 
 }

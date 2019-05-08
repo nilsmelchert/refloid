@@ -96,6 +96,8 @@ private:
     optix::Program m_miss_program;
     optix::Buffer m_outputBuffer;
     optix::Buffer m_accumBuffer;
+
+    unsigned int m_render_counter=0;
 };
 
 #endif //NSLAIFT_RT_SCENE_H

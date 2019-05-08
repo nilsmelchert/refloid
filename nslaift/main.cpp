@@ -11,37 +11,73 @@
 #include <optixu/optixu_math_stream_namespace.h>
 #include <optixu_math_namespace.h>
 
+#include <zmq.hpp>
+#include <string>
 
 const char *const SAMPLE_NAME = "nslaift";
 
-int main(){
+void parse_data(RT_scene* scene, QString& zmq_rec_data);
+
+int main() {
     spdlog::set_level(spdlog::level::debug);
     spdlog::info("Starting raytracing test application");
     auto Scene = new RT_scene();
 
     Scene->setBackgroundColor(0.7f, 0.7f, 0.7f);
 
-    Scene->createObject("cam1", "camera");
+//    Scene->createObject("cam1", "camera");
+//    Scene->createObject("cam2", "camera");
+//    Scene->manipulateObject("cam2", "translate", "-1.0, 0.0, 0.0");
+//    Scene->manipulateObject("cam2", "spin", "0.0, 45.0, 0.0");
+//    Scene->createObject("cam3", "camera");
+//    Scene->manipulateObject("cam3", "translate", "0.0, -20.0, 0.0");
+//    Scene->manipulateObject("cam3", "spin", "-90.0, 0.0, 0.0");
+//    Scene->createObject("sphere1", "sphere");
+//    Scene->manipulateObject("sphere1", "translate", "0.0, 0.0, 1.0");
+//    Scene->createObject("sphere2", "sphere");
+//    Scene->manipulateObject("sphere2", "translate", "0.0, 0.15, 1.0");
+//    Scene->createObject("sphere3", "sphere");
+//    Scene->manipulateObject("sphere3", "translate", "0.0, 1.5, 6.0");
+//    Scene->manipulateObject("sphere3", "radius", "4.0");
+//    Scene->updateCaches();
+//    Scene->render(100);
 
-    Scene->createObject("cam2", "camera");
-    Scene->manipulateObject("cam2", "translate", "-1.0, 0.0, 0.0");
-    Scene->manipulateObject("cam2", "spin", "0.0, 45.0, 0.0");
+    //  Prepare our context and socket
+    zmq::context_t zmq_context(1);
+    zmq::socket_t socket(zmq_context, ZMQ_REP);
+    socket.bind("tcp://*:5555");
+    QString zmq_request;
 
-    Scene->createObject("cam3", "camera");
-    Scene->manipulateObject("cam3", "translate", "0.0, -20.0, 0.0");
-    Scene->manipulateObject("cam3", "spin", "-90.0, 0.0, 0.0");
+    while (std::cin.good()) {
+        zmq::message_t request;
 
-    Scene->createObject("sphere1", "sphere");
-    Scene->manipulateObject("sphere1", "translate", "0.0, 0.0, 1.0");
+        //  Wait for next request from client
+        socket.recv(&request);
+        zmq_request = QString::fromStdString(std::string(static_cast<char*>(request.data()), request.size()));
+        spdlog::debug("Received String via ZMQ: \"{}\"", zmq_request.toUtf8().constData());
 
-    Scene->createObject("sphere2", "sphere");
-    Scene->manipulateObject("sphere2", "translate", "0.0, 0.15, 1.0");
+        parse_data(Scene, zmq_request);
 
-    Scene->createObject("sphere3", "sphere");
-    Scene->manipulateObject("sphere3", "translate", "0.0, 1.5, 6.0");
-    Scene->manipulateObject("sphere3", "radius", "4.0");
+        zmq::message_t reply(1);
+        memcpy((void *) reply.data(), "0", 1);
+        socket.send(reply);
+    }
 
-    Scene->updateCaches();
-    Scene->render(100);
     return 0;
+}
+
+void parse_data(RT_scene* scene, QString& zmq_rec_data)
+{
+    QStringList sList = zmq_rec_data.split(";");
+    if (0 == sList.at(0).compare("createObject", Qt::CaseInsensitive)){
+        scene->createObject(sList.at(1), sList.at(2));
+    } else if (0 == sList.at(0).compare("manipulateObject", Qt::CaseInsensitive)){
+        scene->manipulateObject(sList.at(1), sList.at(2), sList.at(3));
+    } else if (0 == sList.at(0).compare("render", Qt::CaseInsensitive)) {
+        scene->updateCaches();
+        scene->render();
+    }
+
+
+
 }

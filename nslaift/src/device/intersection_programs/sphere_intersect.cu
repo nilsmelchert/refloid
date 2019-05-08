@@ -98,4 +98,3 @@ RT_PROGRAM void bounds (int, float result[6])
     aabb->invalidate();
   }
 }
-

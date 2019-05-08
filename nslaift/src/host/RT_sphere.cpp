@@ -51,6 +51,9 @@ void RT_sphere::setRadius(float r) {
 }
 
 int RT_sphere::updateCache() {
+    spdlog::debug("Updating caches of sphere object {}", m_strName.toUtf8().constData());
+    m_rootGroup->getAcceleration()->markDirty();
+    m_geom_group->getAcceleration()->markDirty();
     m_intersection_program["radius"]->setFloat(m_radius);
     m_bounding_box_program["radius"]->setFloat(m_radius);
     m_intersection_program["Rt"]->setMatrix4x4fv(false, m_transform.getData());
