@@ -22,6 +22,9 @@ int main(){
     Scene->setBackgroundColor(0.7f, 0.7f, 0.7f);
 
 //    Scene->createObject("cam1", "camera");
+//    Scene->createObject("cam2", "camera");
+//    Scene->manipulateObject("cam2", "translate", "0.0f,0.0f,-1.0f");
+//    Scene->manipulateObject("cam2", "resolution", "800x800");
 //    Scene->manipulateObject("cam1", "resolution", "400x400");
 
 

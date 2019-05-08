@@ -6,13 +6,13 @@
 #include <optix.h>
 #include <sutil.h>
 
-class RT_sphere : virtual  public RT_object
-{
+class RT_sphere : virtual  public RT_object {
 public:
     RT_sphere(optix::Context &context, optix::Group &root_group, RT_object *parent = nullptr);
 
 public:
     virtual int updateCache();
+
     void setRadius(float r);
 
     optix::Group &m_rootGroup;

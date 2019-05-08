@@ -14,18 +14,25 @@ RT_scene::RT_scene()
     initPrograms();
     initOutputBuffers();
 
-    m_context->setPrintEnabled(true);
-    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
-
-    auto cam = new RT_camera(m_context);
-    cam->m_strName = "cam1";
-    cam->updateCache();
-    addCamera(cam);
+    auto cam1 = new RT_camera(m_context);
+    cam1->updateCache();
+    addCamera(cam1);
+    auto cam2 = new RT_camera(m_context);
+    cam2->m_transform[11] = -1.0f;
+    cam2->updateCache();
+    addCamera(cam2);
+    auto cam3 = new RT_camera(m_context);
+    cam3->rotate(5.0,0.0,0.0);
+    cam3->updateCache();
+    addCamera(cam3);
 
     auto sphere = new RT_sphere(m_context, m_rootGroup);
-//    sphere->translate(0.0f,0.0f,0.0f);
-//    sphere->translate(0.0f,0.0f,0.5f);
+    sphere->translate(0.0f,0.0f,1.0f);
     sphere->updateCache();
+    auto sphere2 = new RT_sphere(m_context, m_rootGroup);
+    sphere2->m_radius = 0.2;
+    sphere2->translate(0.0f,0.15f,1.0f);
+    sphere2->updateCache();
 }
 
 RT_scene::~RT_scene()
@@ -48,6 +55,8 @@ void RT_scene::setupContext()
     // Note: high max depth for reflection and refraction through glass
     m_context["max_depth"]->setInt( 100 );
     m_context["scene_epsilon"]->setFloat( 1.e-4f );
+    m_context["radiance_ray_type"]->setUint(0u);
+    m_context["shadow_ray_type"]->setUint(1u);
 
     // Creating a top level group - this is the scenes root group
     m_rootGroup = m_context->createGroup();

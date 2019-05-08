@@ -11,10 +11,8 @@
 
 using namespace optix;
 
-//rtDeclareVariable(float4,  sphere, , );
 rtDeclareVariable(float,  radius, , );
 rtDeclareVariable(optix::Matrix4x4, Rt, , );
-//rtDeclareVariable(optix::Matrix4x4, Rt_inv, , );
 
 rtDeclareVariable(float3, geometric_normal, attribute geometric_normal, ); 
 rtDeclareVariable(float3, shading_normal, attribute shading_normal, ); 
@@ -24,7 +22,6 @@ template<bool use_robust_method>
 static __device__
 void intersect_sphere(void)
 {
-  rtPrintf("Intersection");
   float3 center = make_float3(Rt[3], Rt[7], Rt[11]);
   float3 O = ray.origin - center;
   float  l = 1 / length(ray.direction);

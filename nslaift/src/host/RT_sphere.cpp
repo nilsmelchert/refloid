@@ -53,8 +53,7 @@ void RT_sphere::setRadius(float r) {
 
 int RT_sphere::updateCache() {
     m_intersection_program["radius"]->setFloat(m_radius);
-//    rthelpers::printMat4x4(m_transform);
+    m_bounding_box_program["radius"]->setFloat(m_radius);
     m_intersection_program["Rt"]->setMatrix4x4fv(false, m_transform.getData());
-//    m_intersection_program["Rt_inv"]->setMatrix4x4fv(false, m_transform.inverse().getData());
-    m_transform_optix->setMatrix(false, m_transform.getData(), m_transform.inverse().getData());
+    m_bounding_box_program["Rt"]->setMatrix4x4fv(false, m_transform.getData());
 }
