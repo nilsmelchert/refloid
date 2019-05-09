@@ -83,7 +83,7 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType, c
         return nullptr;
     }
     if (findObject(name) != nullptr) {
-        spdlog::error("Object with that name {0} already exists! Not rendering for this camera.", name.toUtf8().constData());
+        spdlog::error("Object with that name {0} already exists! Not rendering the object {}.", name.toUtf8().constData());
         return nullptr;
     }
     // camera objects
@@ -112,6 +112,29 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType, c
 RT_object *RT_scene::createObject(const QString &name, const QString &objType)
 {
     return createObject(name, objType, "");
+}
+
+int RT_scene::deleteObject(const QString &name) {
+    if (name.isEmpty()) {
+        spdlog::error("Object not named");
+        return -1;
+    }
+    RT_object* obj = findObject(name);
+    if (!obj->m_ObjType.isEmpty())
+    {
+        if (0 == obj->m_ObjType.compare("camera")) {
+            // TODO: delete camera object
+        } else if (0 == obj->m_ObjType.compare("geometry")) {
+            // TODO: delete geometry object
+            m_objects.remove(objectIndex(name));
+            delete obj;
+        }
+        else if (0 == obj->m_ObjType.compare("light")) {
+            // TODO: delete light object
+        }
+    } else {
+        spdlog::error("No object type was specified for object {}", obj->m_strName.toUtf8().constData());
+    }
 }
 
 /**
@@ -408,6 +431,24 @@ int RT_scene::addObject(RT_object *obj)
     } else {
         return -1;
     }
+}
+
+/**
+  @brief    remove some object from scene
+  @param    idx index of object to be removed
+  @return   >= 0: index of removed object
+            <0: failure (object not found, out of range)
+  **/
+int RT_scene::removeObject(int idx)
+{
+    if (idx < 0)
+        return -1;
+    if (idx < m_objects.size()) {
+            delete m_objects.at(idx);
+        m_objects.remove(idx);
+        return idx;
+    } else
+        return -1;
 }
 
 /**

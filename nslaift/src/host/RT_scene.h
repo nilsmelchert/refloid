@@ -30,6 +30,7 @@ public:
     int clear(bool destroy = true);
     RT_object* createObject(const QString &name, const QString &objType, const QString &objParams);
     RT_object* createObject(const QString &name, const QString &objType);
+    int deleteObject(const QString &name);
 
     ///< for dynamic interaction! enable the expression manipulate("sphere1", "translate", "43,2,-5");
     int manipulateObject(const QString &name,const QString &action,const QString &parameters);
@@ -45,6 +46,7 @@ public:
     QString   cameraName(int idx) const;
 
     int         addObject(RT_object *obj);     // return id
+    int         removeObject(int idx);
     int         countObjects() const;
     RT_object*   object(int idx) const;
     int         objectIndex(const QString& name) const;

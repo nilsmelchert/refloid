@@ -35,12 +35,14 @@ public:
     ///< readable name
     QString m_strName;
     ///< object material/color
-    optix::Material m_material;
+    optix::Material *m_material;
 
     ///< shall object be visible? (VTK and rendering)
     bool m_bVisible;
     ///< =NULL    pointer to the occupying objectGroup
     RT_object *m_parent;
+    QString m_ObjType;
+    int m_ObjIdx;
 
 public:
     // Object memory management

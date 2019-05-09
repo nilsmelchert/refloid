@@ -9,10 +9,11 @@
 class RT_sphere : virtual  public RT_object {
 public:
     RT_sphere(optix::Context &context, optix::Group &root_group, RT_object *parent = nullptr);
+    ~RT_sphere();
 
 public:
-    virtual int updateCache();
-    virtual int parseActions(const QString &action, const QString &parameters);
+    int updateCache() override;
+    int parseActions(const QString &action, const QString &parameters) override;
 
     void setRadius(float r);
 

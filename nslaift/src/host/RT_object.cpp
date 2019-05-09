@@ -21,6 +21,7 @@ RT_object::RT_object(optix::Context &context, RT_object *parent):
 m_context(context)
 {
     m_parent = parent;
+    m_ObjType = "";
 
     m_transform = optix::Matrix4x4::identity();
     m_bTransformCacheUpToDate = false;
@@ -79,7 +80,7 @@ void RT_object::setMaterial(const optix::Material &material) {
   @return   return object's material
   **/
 const optix::Material *RT_object::material() const {
-    return &m_material;
+    return m_material;
 }
 
 /**
@@ -395,6 +396,8 @@ int RT_object::parseActions(const QString &action, const QString &parameters) {
         optix::Matrix4x4 mat = optix::Matrix4x4::identity();
         rthelpers::RT_parse_matrix(parameters, &mat);
         setTransformationMatrix(mat);  //matrix dimension check is performed by this fn
+    } else if (0 == action.compare("setMaterialType", Qt::CaseInsensitive) || 0 == action.compare("setBRDF", Qt::CaseInsensitive) || 0 == action.compare("materialType", Qt::CaseInsensitive) || 0 == action.compare("brdf", Qt::CaseInsensitive)) {
+        // TODO implement setting material brdf
     }
     return 0;
 }

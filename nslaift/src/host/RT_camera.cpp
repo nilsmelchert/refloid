@@ -9,6 +9,7 @@
   **/
 RT_camera::RT_camera(optix::Context &context, RT_object *parent) :
         RT_object(context, parent) {
+    m_ObjType="camera";
 
     m_iCameraIdx = m_context->getEntryPointCount();
     m_context->setEntryPointCount(m_iCameraIdx + 1);
@@ -40,6 +41,9 @@ RT_camera::RT_camera(optix::Context &context, RT_object *parent) :
   @brief    destructor
   **/
 RT_camera::~RT_camera() {
+    // TODO: Properly clean up after yourself: Updating entry point
+    m_context->setEntryPointCount(m_iCameraIdx);
+    // TODO: Keep in mind that all remaining cameras need to update their entry points. Perform that in UpdateCache()
 }
 
 /**

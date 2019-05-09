@@ -25,23 +25,6 @@ int main() {
 
     Scene->setBackgroundColor(0.7f, 0.7f, 0.7f);
 
-//    Scene->createObject("cam1", "camera");
-//    Scene->createObject("cam2", "camera");
-//    Scene->manipulateObject("cam2", "translate", "-1.0, 0.0, 0.0");
-//    Scene->manipulateObject("cam2", "spin", "0.0, 45.0, 0.0");
-//    Scene->createObject("cam3", "camera");
-//    Scene->manipulateObject("cam3", "translate", "0.0, -20.0, 0.0");
-//    Scene->manipulateObject("cam3", "spin", "-90.0, 0.0, 0.0");
-//    Scene->createObject("sphere1", "sphere");
-//    Scene->manipulateObject("sphere1", "translate", "0.0, 0.0, 1.0");
-//    Scene->createObject("sphere2", "sphere");
-//    Scene->manipulateObject("sphere2", "translate", "0.0, 0.15, 1.0");
-//    Scene->createObject("sphere3", "sphere");
-//    Scene->manipulateObject("sphere3", "translate", "0.0, 1.5, 6.0");
-//    Scene->manipulateObject("sphere3", "radius", "4.0");
-//    Scene->updateCaches();
-//    Scene->render(100);
-
     //  Prepare our context and socket
     zmq::context_t zmq_context(1);
     zmq::socket_t socket(zmq_context, ZMQ_REP);
@@ -76,6 +59,8 @@ void parse_data(RT_scene* scene, QString& zmq_rec_data)
     } else if (0 == sList.at(0).compare("render", Qt::CaseInsensitive)) {
         scene->updateCaches();
         scene->render();
+    } else if (0 == sList.at(0).compare("deleteObject", Qt::CaseInsensitive)){
+        scene->deleteObject(sList.at(1));
     }
 
 
