@@ -23,7 +23,8 @@ int main() {
     spdlog::info("Starting raytracing application");
     auto Scene = new RT_scene();
 
-    Scene->setBackgroundColor(0.7f, 0.7f, 0.7f);
+//    Scene->setBackgroundColor(0.7f, 0.7f, 0.7f);
+    Scene->setBackgroundColor(0.7f, 0.0f, 0.0f);
 
     //  Prepare our context and socket
     zmq::context_t zmq_context(1);

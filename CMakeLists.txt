@@ -15,6 +15,7 @@ cmake_policy(VERSION 2.6)
 # set(OptiX_INSTALL_DIR "/home/melchert/Desktop/raytracing/NVIDIA-OptiX-SDK-6.0.0-linux64" CACHE PATH "Path to OptiX installed location.")
 set(OptiX_INSTALL_DIR "/home/melchert/Desktop/raytracing/NVIDIA-OptiX-SDK-6.0.0-linux64" CACHE PATH "Path to OptiX installed location.")
 
+
 # Add paths to our CMake code to the module path, so they can be found automatically by
 # CMake.
 set(CMAKE_MODULE_PATH
@@ -132,6 +133,7 @@ find_package(OptiX REQUIRED)
 ## load in pkg-config support
 find_package(PkgConfig)
 find_package(OpenCV 2 REQUIRED)
+find_package(TIFF)
 
 # Optional: When IL_FOUND is false after this call, the OptiX introduction samples optixIntro_07 and higher will not be built.
 # find_package(DevIL)
@@ -160,7 +162,10 @@ include_directories(
         "${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}/src/device"
         "${OptiX_INSTALL_DIR}/SDK/cuda"
 )
-include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(
+        "${OpenCV_INCLUDE_DIRS}"
+        "${TIFF_INCLUDE_DIRS}"
+        )
 
 # Select whether to use NVRTC or NVCC to generate PTX
 set(CUDA_NVRTC_ENABLED ON CACHE BOOL "Use NVRTC to compile PTX at run-time instead of NVCC at build-time")
@@ -286,6 +291,7 @@ function(OPTIX_add_sample_executable target_name)
     #glfw
 
     target_link_libraries(${target_name}
+            ${TIFF_LIBRARIES}
             ${OpenCV_LIBS}
             Qt5::Widgets
             sutil_sdk

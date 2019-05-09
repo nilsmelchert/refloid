@@ -1,11 +1,4 @@
 #include "RT_scene.h"
-#include "RT_camera.h"
-#include "RT_sphere.h"
-#include "zmq.hpp"
-
-#include <cv.h>
-#include <highgui.h>
-#include <opencv2/imgproc/imgproc.hpp>
 
 RT_scene::RT_scene()
 {
@@ -232,11 +225,37 @@ void RT_scene::render(int iterations)
         std::vector<unsigned char> img_data;
         optix::Buffer output_buffer = m_context["sysOutputBuffer"]->getBuffer();
         img_data = rthelpers::writeBufferToPipe(output_buffer);
-        cv::Mat cv_img = cv::Mat(m_cameras[cam_idx]->m_iHeight, m_cameras[cam_idx]->m_iWidth, CV_8UC3);
-        cv_img.data = img_data.data();
         QString img_path = "/tmp/render_";
         img_path.append(QString::number(m_render_counter)).append("_");
         img_path.append(camera(cam_idx)->m_strName).append(".png");
+
+//        img_path.append(camera(cam_idx)->m_strName).append(".tif");
+//        TIFF* tif = TIFFOpen(img_path.toStdString().c_str(), "w");
+//        TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, m_cameras[cam_idx]->m_iWidth);
+//        TIFFSetField(tif, TIFFTAG_IMAGELENGTH, m_cameras[cam_idx]->m_iHeight);
+//        TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3);
+//        TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
+//        TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_BOTLEFT);
+//        TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_SEPARATE);
+//        TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+//        tsize_t linebytes = 3 * m_cameras[cam_idx]->m_iWidth;
+//        unsigned char *buf_tiff = nullptr;
+//        buf_tiff =(unsigned char *)_TIFFmalloc(linebytes);
+//
+//        TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, m_cameras[cam_idx]->m_iWidth * 3));
+//        int h = m_cameras[cam_idx]->m_iHeight;
+//        for (uint32 row = 0; row < h; row++) {
+//            memcpy(buf_tiff, &img_data[(h - row - 1) * linebytes],
+//                   linebytes);    // check the index here, and figure tif why not using h*linebytes
+//            if (TIFFWriteScanline(tif, buf_tiff, row, 0) < 0)
+//                break;
+//        }
+//        TIFFClose(tif);
+//        if (buf_tiff)
+//            _TIFFfree(buf_tiff);
+
+        cv::Mat cv_img = cv::Mat(m_cameras[cam_idx]->m_iHeight, m_cameras[cam_idx]->m_iWidth, CV_8UC3);
+        cv_img.data = img_data.data();
         cv::imwrite(img_path.toStdString().c_str(), cv_img);
         m_render_counter++;
     }
