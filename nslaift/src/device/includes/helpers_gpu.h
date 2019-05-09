@@ -13,6 +13,10 @@
 #include "rt_function.h"
 #include <optix_math.h>
 
+// Common optix::Ray types
+#define RADIANCE_RAY_TYPE 0
+#define SHADOW_RAY_TYPE 1
+
 RT_FUNCTION optix::uchar4 make_color(const optix::float3& c) {
     return optix::make_uchar4(static_cast<unsigned char>(__saturatef(c.z) * 255.99f),  /* B */ //saturatef cuda function
                               static_cast<unsigned char>(__saturatef(c.y) * 255.99f),  /* G */ //see cuda api as reference

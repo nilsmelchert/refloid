@@ -19,8 +19,8 @@ const char *const SAMPLE_NAME = "nslaift";
 void parse_data(RT_scene* scene, QString& zmq_rec_data);
 
 int main() {
-    spdlog::set_level(spdlog::level::debug);
-    spdlog::info("Starting raytracing test application");
+    spdlog::set_level(spdlog::level::info);
+    spdlog::info("Starting raytracing application");
     auto Scene = new RT_scene();
 
     Scene->setBackgroundColor(0.7f, 0.7f, 0.7f);
@@ -62,7 +62,4 @@ void parse_data(RT_scene* scene, QString& zmq_rec_data)
     } else if (0 == sList.at(0).compare("deleteObject", Qt::CaseInsensitive)){
         scene->deleteObject(sList.at(1));
     }
-
-
-
 }

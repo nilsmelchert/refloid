@@ -1,10 +1,3 @@
-/*
-   @file    per_ray_data.h
-  @author   Pascal Kern   (kern@imr.uni-hannover.de)
-  @since    2018 / 28 / 6
-  @brief    Ray data used in most shading files
-*/
-
 #pragma once
 
 #include <optixu/optixu_vector_types.h>

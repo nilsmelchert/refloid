@@ -23,6 +23,7 @@ public:
     optix::Geometry m_sphere;
     optix::GeometryInstance m_geom_inst;
     optix::GeometryGroup m_geom_group;
+    // TODO: This should not by an optix type but nested in the RT_material class
     optix::Material m_material;
     optix::Transform m_transform_optix;
     float m_radius = 0.1f;

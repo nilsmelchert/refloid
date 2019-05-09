@@ -22,9 +22,11 @@ RT_sphere::RT_sphere(optix::Context &context, optix::Group &root_group, RT_objec
     // TODO: This needs to be in a seperate Material class
     spdlog::debug("Creating material for sphere object. WARNING: This has to be moved to a seperate material class!");
     m_material = m_context->createMaterial();
-    std::string ptx_path_ch(rthelpers::ptxPath("ch_normal.cu"));
-    optix::Program ch_pgrm = m_context->createProgramFromPTXFile(ptx_path_ch, "closest_hit_radiance");
+    std::string ptx_path_ch(rthelpers::ptxPath("normal.cu"));
+    optix::Program ch_pgrm = m_context->createProgramFromPTXFile(ptx_path_ch, "closest_hit");
+    optix::Program ah_pgrm = m_context->createProgramFromPTXFile(ptx_path_ch, "any_hit");
     m_material->setClosestHitProgram(0, ch_pgrm);
+    m_material->setAnyHitProgram(1, ah_pgrm);
     // TODO: This needs to be in a seperate Material class
 
 

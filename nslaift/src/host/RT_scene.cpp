@@ -32,12 +32,6 @@ void RT_scene::setupContext()
     m_context->setStackSize( stack_size );
     spdlog::debug("Using a stack size of {}", stack_size );
 
-    // Note: high max depth for reflection and refraction through glass
-    m_context["max_depth"]->setInt( 100 );
-    m_context["scene_epsilon"]->setFloat( 1.e-4f );
-    m_context["radiance_ray_type"]->setUint(0u);
-    m_context["shadow_ray_type"]->setUint(1u);
-
     // Creating a top level group - this is the scenes root group
     m_rootGroup = m_context->createGroup();
     m_rootGroup->setAcceleration(m_context->createAcceleration("Trbvh"));
@@ -83,7 +77,7 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType, c
         return nullptr;
     }
     if (findObject(name) != nullptr) {
-        spdlog::warn("Object with name {0} already exists! Not rendering the object.", name.toUtf8().constData());
+        spdlog::warn("Object with name {0} already exists! Not creating the object.", name.toUtf8().constData());
         return nullptr;
     }
     // camera objects

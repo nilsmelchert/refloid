@@ -36,9 +36,6 @@ m_context(context)
   Handles object detaching
   **/
 RT_object::~RT_object() {
-    if (m_parent) {
-        //detach from parent, notify parent
-    }
 }
 
 /**

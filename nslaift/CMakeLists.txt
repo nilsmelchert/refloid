@@ -5,7 +5,7 @@ OPTIX_add_sample_executable( nslaift
         src/device/cameras/pinhole_cam.cu
         src/device/shaders/miss.cu
         src/device/intersection_programs/sphere_intersect.cu
-        src/device/shaders/ch_ah_programs/ch_normal.cu
+        src/device/shaders/ch_ah_programs/normal.cu
         src/device/includes/helpers_gpu.h
         src/device/includes/rt_function.h
         src/device/includes/per_ray_data_gpu.h
