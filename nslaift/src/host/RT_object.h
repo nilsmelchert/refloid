@@ -42,7 +42,6 @@ public:
     ///< =NULL    pointer to the occupying objectGroup
     RT_object *m_parent;
     QString m_ObjType;
-    int m_ObjIdx;
 
 public:
     // Object memory management

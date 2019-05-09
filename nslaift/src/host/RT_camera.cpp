@@ -41,9 +41,8 @@ RT_camera::RT_camera(optix::Context &context, RT_object *parent) :
   @brief    destructor
   **/
 RT_camera::~RT_camera() {
-    // TODO: Properly clean up after yourself: Updating entry point
-    m_context->setEntryPointCount(m_iCameraIdx);
-    // TODO: Keep in mind that all remaining cameras need to update their entry points. Perform that in UpdateCache()
+    m_ray_gen_pgrm->destroy();
+    m_context->setEntryPointCount(m_context->getEntryPointCount() - 1);
 }
 
 /**
@@ -158,13 +157,15 @@ int RT_camera::updateCache() {
     }
     if (m_iType == TypePinhole)
     {
+        m_context->setRayGenerationProgram(m_iCameraIdx, m_ray_gen_pgrm);
+
         m_ray_gen_pgrm["width"]->setUint(m_iWidth);
         m_ray_gen_pgrm["height"]->setUint(m_iHeight);
         m_ray_gen_pgrm["Rt"]->setMatrix4x4fv(false, m_transform.getData());
         m_ray_gen_pgrm["Rt_inv"]->setMatrix4x4fv(false, m_transform.inverse().getData());
         m_ray_gen_pgrm["K"]->setMatrix4x4fv(false, m_K.getData());
         m_ray_gen_pgrm["K_inv"]->setMatrix4x4fv(false, m_K.inverse().getData());
-        m_ray_gen_pgrm["entry_point_id"]->setUint(m_iCameraIdx);
+        m_ray_gen_pgrm["entry_point_idx"]->setUint(m_iCameraIdx);
 
         optix::Buffer distBuff = m_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_FLOAT, 5);
         // Copy data into OptiX buffer

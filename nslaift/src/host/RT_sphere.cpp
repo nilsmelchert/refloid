@@ -6,7 +6,6 @@ RT_sphere::RT_sphere(optix::Context &context, optix::Group &root_group, RT_objec
         m_rootGroup(root_group){
 
     m_ObjType = "geometry";
-    m_ObjIdx = m_rootGroup->getChildCount();
 
     m_geom_inst = m_context->createGeometryInstance();
     m_sphere = m_context->createGeometry();
@@ -36,8 +35,7 @@ RT_sphere::RT_sphere(optix::Context &context, optix::Group &root_group, RT_objec
     spdlog::debug("Creating geometry group for sphere object");
     m_geom_group = m_context->createGeometryGroup();
     m_geom_group->setAcceleration(m_context->createAcceleration("Trbvh"));
-    m_geom_group->setChildCount(1);
-    m_geom_group->setChild(0, m_geom_inst);
+    m_geom_group->addChild(m_geom_inst);
 
     spdlog::debug("Creating transform for sphere object");
     m_transform_optix = m_context->createTransform();
@@ -45,16 +43,16 @@ RT_sphere::RT_sphere(optix::Context &context, optix::Group &root_group, RT_objec
     m_transform_optix->setMatrix(false, m_transform.getData(), m_transform.inverse().getData());
 
     spdlog::debug("Assigning transform of sphere object to top group");
-    m_rootGroup->setChildCount(m_ObjIdx + 1);
-    m_rootGroup->setChild(m_ObjIdx, m_transform_optix);
+    m_rootGroup->addChild(m_transform_optix);
 }
 
 RT_sphere::~RT_sphere() {
     spdlog::debug("Deleting sphere object: {}", m_strName.toUtf8().constData());
+    int idx = m_rootGroup->getChildIndex(m_transform_optix);
     m_sphere->destroy();
     m_geom_inst->destroy();
     m_geom_group->destroy();
-    m_rootGroup->removeChild(m_ObjIdx);
+    m_rootGroup->removeChild(idx);
 }
 
 void RT_sphere::setRadius(float r) {

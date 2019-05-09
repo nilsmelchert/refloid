@@ -8,7 +8,7 @@
 #include "includes/per_ray_data_gpu.h"
 #include "includes/random_number_generators_gpu.h"
 
-rtDeclareVariable(unsigned int, entry_point_id, ,);
+rtDeclareVariable(unsigned int, entry_point_idx, ,);
 rtDeclareVariable(int, parCameraIndex,,);
 
 // Camera Parameters

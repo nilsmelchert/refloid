@@ -17,7 +17,7 @@ RT_scene::RT_scene()
 
 RT_scene::~RT_scene()
 {
-
+    m_context->destroy();
 }
 
 void RT_scene::setupContext()
@@ -83,7 +83,7 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType, c
         return nullptr;
     }
     if (findObject(name) != nullptr) {
-        spdlog::error("Object with that name {0} already exists! Not rendering the object {}.", name.toUtf8().constData());
+        spdlog::warn("Object with name {0} already exists! Not rendering the object.", name.toUtf8().constData());
         return nullptr;
     }
     // camera objects
@@ -123,9 +123,17 @@ int RT_scene::deleteObject(const QString &name) {
     if (!obj->m_ObjType.isEmpty())
     {
         if (0 == obj->m_ObjType.compare("camera")) {
-            // TODO: delete camera object
+            spdlog::debug("Deleting camera object {}", obj->m_strName.toUtf8().constData());
+            int cam_idx = cameraIndex(name);
+            int entry_pt = m_cameras.at(cameraIndex(name))->m_iCameraIdx;
+            for (int i=0; i<m_cameras.size(); i++) {
+                if (m_cameras.at(i)->m_iCameraIdx > entry_pt) {
+                    m_cameras.at(i)->m_iCameraIdx--;
+                }
+            }
+            m_cameras.remove(cam_idx);
+            delete obj;
         } else if (0 == obj->m_ObjType.compare("geometry")) {
-            // TODO: delete geometry object
             m_objects.remove(objectIndex(name));
             delete obj;
         }
@@ -232,10 +240,9 @@ void RT_scene::render(int iterations)
         img_data = rthelpers::writeBufferToPipe(output_buffer);
         cv::Mat cv_img = cv::Mat(m_cameras[cam_idx]->m_iHeight, m_cameras[cam_idx]->m_iWidth, CV_8UC3);
         cv_img.data = img_data.data();
-//        cv::imshow("rendered_image", cv_img);
-//        cv::waitKey(1);
-        QString img_path = "/tmp/render";
-        img_path.append(QString::number(m_render_counter)).append(".png");
+        QString img_path = "/tmp/render_";
+        img_path.append(QString::number(m_render_counter)).append("_");
+        img_path.append(camera(cam_idx)->m_strName).append(".png");
         cv::imwrite(img_path.toStdString().c_str(), cv_img);
         m_render_counter++;
     }
@@ -301,8 +308,6 @@ int RT_scene::addCamera(RT_camera *cam)
         return -1;
     }
 }
-
-
 
 /**
   @brief    determine camera count
