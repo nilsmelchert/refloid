@@ -2,6 +2,7 @@
 OPTIX_add_sample_executable( nslaift
         main.cpp
 
+        src/device/cameras/pinhole_cam.h
         src/device/cameras/pinhole_cam.cu
         src/device/shaders/miss.cu
         src/device/intersection_programs/sphere_intersect.cu

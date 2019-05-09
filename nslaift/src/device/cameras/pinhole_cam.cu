@@ -1,12 +1,4 @@
-#include <optix.h>
-#include <optixu/optixu_math_namespace.h>
-#include <optix_cuda.h>
-#include <valarray>
-#include <optix_world.h>
-
-#include "includes/helpers_gpu.h"
-#include "includes/per_ray_data_gpu.h"
-#include "includes/random_number_generators_gpu.h"
+#include "pinhole_cam.h"
 
 // Camera Parameters
 rtDeclareVariable(unsigned int, width, ,);
@@ -20,18 +12,14 @@ rtBuffer<float>undistBuff;
 
 rtDeclareVariable(float, scene_epsilon, ,);
 
+// Buffers for image data
 rtBuffer<uchar4, 2> sysOutputBuffer; // RGB32F
 rtBuffer<float4, 2> sysAccumBuffer; // RGB32F
 
+// Top object which was declared as m_root_group in RT_scene at host side
 rtDeclareVariable(rtObject, sysTopObject, ,);
 rtDeclareVariable(unsigned int, frame, ,);
 rtDeclareVariable(uint2, launch_index, rtLaunchIndex,);
-
-RT_FUNCTION void distort_pixels(float2 &uv);
-
-RT_FUNCTION optix::float3 calculate_ray_direction(float2 &uv);
-
-RT_FUNCTION PerRayData_radiance init_per_ray_data();
 
 RT_PROGRAM void camera()
 {
