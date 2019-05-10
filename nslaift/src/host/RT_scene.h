@@ -9,9 +9,6 @@
 #include "RT_camera.h"
 #include "RT_sphere.h"
 
-#include <cv.h>
-#include <highgui.h>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <zmq.hpp>
 #include <tiff.h>
 #include <tiffio.h>

@@ -3,3 +3,4 @@
 Dependencies:
     - Optix 6.0
     - Qt5 (From apt tree)
+    - libtiff-dev (From apt tree)

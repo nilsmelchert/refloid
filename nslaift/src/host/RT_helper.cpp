@@ -108,9 +108,9 @@ std::vector<unsigned char> rthelpers::writeBufferToPipe(RTbuffer buffer)
                 unsigned char *dst = &pix[0] + (3 * width * (height - 1 - j));
                 unsigned char *src = ((unsigned char *) imageData) + (4 * width * j);
                 for (int i = 0; i < width; i++) {
-                    *dst++ = *(src + 0);
-                    *dst++ = *(src + 1);
                     *dst++ = *(src + 2);
+                    *dst++ = *(src + 1);
+                    *dst++ = *(src + 0);
                     src += 4;
                 }
             }

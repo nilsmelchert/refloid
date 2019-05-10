@@ -222,41 +222,41 @@ void RT_scene::render(int iterations)
             m_context->launch(cam_idx, m_cameras[cam_idx]->m_iWidth, m_cameras[cam_idx]->m_iHeight);
         }
         spdlog::info("Rendering with {0} with a resolution of {1}x{2} is DONE!", m_cameras[cam_idx]->m_strName.toUtf8().constData(), m_cameras[cam_idx]->m_iWidth,m_cameras[cam_idx]->m_iHeight);
-        std::vector<unsigned char> img_data;
         optix::Buffer output_buffer = m_context["sysOutputBuffer"]->getBuffer();
-        img_data = rthelpers::writeBufferToPipe(output_buffer);
+        // Writing the rendered data to char vector
+        std::vector<unsigned char> img_data = rthelpers::writeBufferToPipe(output_buffer);
+
+        // Saving data as tiff image
         QString img_path = "/tmp/render_";
         img_path.append(QString::number(m_render_counter)).append("_");
-        img_path.append(camera(cam_idx)->m_strName).append(".png");
-
-//        img_path.append(camera(cam_idx)->m_strName).append(".tif");
-//        TIFF* tif = TIFFOpen(img_path.toStdString().c_str(), "w");
-//        TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, m_cameras[cam_idx]->m_iWidth);
-//        TIFFSetField(tif, TIFFTAG_IMAGELENGTH, m_cameras[cam_idx]->m_iHeight);
-//        TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3);
-//        TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
-//        TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_BOTLEFT);
-//        TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_SEPARATE);
-//        TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-//        tsize_t linebytes = 3 * m_cameras[cam_idx]->m_iWidth;
-//        unsigned char *buf_tiff = nullptr;
-//        buf_tiff =(unsigned char *)_TIFFmalloc(linebytes);
-//
-//        TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, m_cameras[cam_idx]->m_iWidth * 3));
-//        int h = m_cameras[cam_idx]->m_iHeight;
-//        for (uint32 row = 0; row < h; row++) {
-//            memcpy(buf_tiff, &img_data[(h - row - 1) * linebytes],
-//                   linebytes);    // check the index here, and figure tif why not using h*linebytes
-//            if (TIFFWriteScanline(tif, buf_tiff, row, 0) < 0)
-//                break;
-//        }
-//        TIFFClose(tif);
-//        if (buf_tiff)
-//            _TIFFfree(buf_tiff);
-
-        cv::Mat cv_img = cv::Mat(m_cameras[cam_idx]->m_iHeight, m_cameras[cam_idx]->m_iWidth, CV_8UC3);
-        cv_img.data = img_data.data();
-        cv::imwrite(img_path.toStdString().c_str(), cv_img);
+        img_path.append(camera(cam_idx)->m_strName).append(".tif");
+        spdlog::debug("Saving the rendered data from {} as tiff image in path: {}", m_cameras[cam_idx]->m_strName.toUtf8().constData(), img_path.toUtf8().constData());
+        TIFF* out = TIFFOpen(img_path.toStdString().c_str(), "w");
+        int sampleperpixel = 3;
+        if (out) {
+            TIFFSetField(out, TIFFTAG_IMAGEWIDTH, m_cameras[cam_idx]->m_iWidth);
+            TIFFSetField(out, TIFFTAG_IMAGELENGTH, m_cameras[cam_idx]->m_iHeight);
+            TIFFSetField(out, TIFFTAG_SAMPLESPERPIXEL, sampleperpixel);
+            TIFFSetField(out, TIFFTAG_BITSPERSAMPLE, 8);
+            TIFFSetField(out, TIFFTAG_ORIENTATION, ORIENTATION_BOTLEFT);
+            TIFFSetField(out, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+            TIFFSetField(out, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+            tsize_t linebytes = 3 * m_cameras[cam_idx]->m_iWidth;
+            unsigned char *buf_out = nullptr;
+            buf_out =(unsigned char *)_TIFFmalloc(linebytes);
+            TIFFSetField(out, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(out, m_cameras[cam_idx]->m_iWidth * 3));
+            int h = m_cameras[cam_idx]->m_iHeight;
+            for (uint32 row = 0; row < h; row++) {
+                memcpy(buf_out, &img_data[(h - row - 1) * linebytes], linebytes);    // check the index here, and figure out why not using h*linebytes
+                if (TIFFWriteScanline(out, buf_out, row, 0) < 0)
+                    break;
+            }
+            TIFFClose(out);
+            if (buf_out)
+                _TIFFfree(buf_out);
+        } else {
+            spdlog::error("Was not able to open tiff file with path: {}", img_path.toUtf8().constData());
+        }
         m_render_counter++;
     }
 

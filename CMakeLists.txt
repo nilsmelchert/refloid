@@ -132,7 +132,6 @@ find_package(OptiX REQUIRED)
 
 ## load in pkg-config support
 find_package(PkgConfig)
-find_package(OpenCV 2 REQUIRED)
 find_package(TIFF)
 
 # Optional: When IL_FOUND is false after this call, the OptiX introduction samples optixIntro_07 and higher will not be built.
@@ -163,7 +162,6 @@ include_directories(
         "${OptiX_INSTALL_DIR}/SDK/cuda"
 )
 include_directories(
-        "${OpenCV_INCLUDE_DIRS}"
         "${TIFF_INCLUDE_DIRS}"
         )
 
@@ -292,7 +290,6 @@ function(OPTIX_add_sample_executable target_name)
 
     target_link_libraries(${target_name}
             ${TIFF_LIBRARIES}
-            ${OpenCV_LIBS}
             Qt5::Widgets
             sutil_sdk
             optix
