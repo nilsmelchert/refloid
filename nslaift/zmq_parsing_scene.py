@@ -25,12 +25,14 @@ if __name__ == '__main__':
     send_zmq_msg("createObject;sphere2;sphere")
     send_zmq_msg("manipulateObject;sphere2;translate;0.0,0.0,9.0")
     send_zmq_msg("manipulateObject;sphere2;radius;4")
+    send_zmq_msg("manipulateObject;sphere2;setmaterial;blank")
     send_zmq_msg("render")
 
     send_zmq_msg("deleteObject;cam1")
     send_zmq_msg("manipulateObject;sphere2;radius;3")
     send_zmq_msg("createObject;sphere3;sphere")
     send_zmq_msg("manipulateObject;sphere3;translate; 0.1, 0.0, 2.0")
+    send_zmq_msg("manipulateObject;sphere2;setmaterial;normal")
     send_zmq_msg("render")
 
     send_zmq_msg("manipulateObject;sphere3;translate; 0.1, 0.2, 0.0")
@@ -43,6 +45,7 @@ if __name__ == '__main__':
 
     send_zmq_msg("deleteObject;sphere1")
     send_zmq_msg("render")
+
 
     send_zmq_msg("createObject;sphere1;sphere")
     send_zmq_msg("manipulateObject;sphere1;translate;0.0,0.0,2.0")

@@ -19,12 +19,9 @@ const char *const SAMPLE_NAME = "nslaift";
 void parse_data(RT_scene* scene, QString& zmq_rec_data);
 
 int main() {
-    spdlog::set_level(spdlog::level::info);
+    spdlog::set_level(spdlog::level::debug);
     spdlog::info("Starting raytracing application");
     auto Scene = new RT_scene();
-
-//    Scene->setBackgroundColor(0.7f, 0.7f, 0.7f);
-    Scene->setBackgroundColor(0.7f, 0.0f, 0.0f);
 
     //  Prepare our context and socket
     zmq::context_t zmq_context(1);
@@ -62,5 +59,10 @@ void parse_data(RT_scene* scene, QString& zmq_rec_data)
         scene->render();
     } else if (0 == sList.at(0).compare("deleteObject", Qt::CaseInsensitive)){
         scene->deleteObject(sList.at(1));
+    } else if (0 == sList.at(0).compare("setMaterial", Qt::CaseInsensitive)){
+        scene->manipulateObject(sList.at(0), sList.at(1), sList.at(2));
+        // TODO properly parse material parameter
+    } else if (0 == sList.at(0).compare("setMaterialParameter", Qt::CaseInsensitive)){
+        scene->manipulateObject(sList.at(0), sList.at(1), sList.at(2));
     }
 }

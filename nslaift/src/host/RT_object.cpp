@@ -22,6 +22,7 @@ m_context(context)
 {
     m_parent = parent;
     m_ObjType = "";
+    m_material = new RT_material(m_context);
 
     m_transform = optix::Matrix4x4::identity();
     m_bTransformCacheUpToDate = false;
@@ -59,25 +60,6 @@ bool RT_object::setParent(RT_object *object) {
 RT_object *RT_object::parent()
 {
     return m_parent;
-}
-
-/**
-  @brief    set object's material
-  @param    name    another material to have the contents copied
-
-  **/
-void RT_object::setMaterial(const optix::Material &material) {
-    spdlog::debug("Setting material for RT_object {0}", m_strName.toUtf8().constData());
-    // TODO: Implement me. Should the Material created inside here or before and then be passen to the RT_object instance?
-    // m_context->createMaterial();
-}
-
-/**
-  @brief    get object's material
-  @return   return object's material
-  **/
-const optix::Material *RT_object::material() const {
-    return m_material;
 }
 
 /**
@@ -318,6 +300,10 @@ const optix::float3 RT_object::position() const {
     return optix::make_float3(m_transform[3], m_transform[7], m_transform[11]);
 }
 
+/*//////////////////////////////////
+ Settings for material
+*//////////////////////////////////
+
 /**
   @brief    parse parameters
   @param    action  string describing action to perform
@@ -393,8 +379,10 @@ int RT_object::parseActions(const QString &action, const QString &parameters) {
         optix::Matrix4x4 mat = optix::Matrix4x4::identity();
         rthelpers::RT_parse_matrix(parameters, &mat);
         setTransformationMatrix(mat);  //matrix dimension check is performed by this fn
-    } else if (0 == action.compare("setMaterialType", Qt::CaseInsensitive) || 0 == action.compare("setBRDF", Qt::CaseInsensitive) || 0 == action.compare("materialType", Qt::CaseInsensitive) || 0 == action.compare("brdf", Qt::CaseInsensitive)) {
-        // TODO implement setting material brdf
+    } else if (0 == action.compare("setMaterialType", Qt::CaseInsensitive) || 0 == action.compare("setBRDF", Qt::CaseInsensitive) || 0 == action.compare("materialType", Qt::CaseInsensitive) || 0 == action.compare("brdf", Qt::CaseInsensitive) || 0 == action.compare("setMaterial", Qt::CaseInsensitive) | 0 == action.compare("Material", Qt::CaseInsensitive)) {
+        return m_material->parseActions(action, parameters);
+    } else if (0 == action.compare("setMaterialParameter", Qt::CaseInsensitive) || 0 == action.compare("materialParameter", Qt::CaseInsensitive)) {
+        // TODO
     }
     return 0;
 }

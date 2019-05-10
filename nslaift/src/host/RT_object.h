@@ -16,9 +16,12 @@
 #include <optixu/optixu_math_stream_namespace.h>
 #include <optixu_math_namespace.h>
 #include <QString>
-#include "spdlog/spdlog.h"
+#include <spdlog.h>
+
 #include "RT_matrixHelpers.h"
 #include "RT_helper.h"
+#include "RT_material.h"
+
 /**
   @brief    abstract base class for scene object
 
@@ -35,7 +38,7 @@ public:
     ///< readable name
     QString m_strName;
     ///< object material/color
-    optix::Material *m_material;
+    RT_material *m_material;
 
     ///< shall object be visible? (VTK and rendering)
     bool m_bVisible;
@@ -50,10 +53,6 @@ public:
 
     virtual bool setParent(RT_object *object);
     virtual RT_object *parent();
-
-
-    virtual void    setMaterial(const optix::Material &material);
-    virtual const optix::Material* material() const;
 
     virtual void      setName(const QString &str);
     virtual QString   name() const;

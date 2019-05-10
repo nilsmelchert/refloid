@@ -18,21 +18,8 @@ RT_sphere::RT_sphere(optix::Context &context, optix::Group &root_group, RT_objec
     m_sphere->setIntersectionProgram(m_intersection_program);
     m_sphere->setPrimitiveCount(1u);
 
-
-    // TODO: This needs to be in a seperate Material class
-    spdlog::debug("Creating material for sphere object. WARNING: This has to be moved to a seperate material class!");
-    m_material = m_context->createMaterial();
-    std::string ptx_path_ch(rthelpers::ptxPath("normal.cu"));
-    optix::Program ch_pgrm = m_context->createProgramFromPTXFile(ptx_path_ch, "closest_hit");
-    optix::Program ah_pgrm = m_context->createProgramFromPTXFile(ptx_path_ch, "any_hit");
-    m_material->setClosestHitProgram(0, ch_pgrm);
-    m_material->setAnyHitProgram(1, ah_pgrm);
-    // TODO: This needs to be in a seperate Material class
-
-
     m_geom_inst->setGeometry(m_sphere);
-    m_geom_inst->setMaterialCount(1);
-    m_geom_inst->setMaterial(0, m_material);
+    m_geom_inst->addMaterial(m_material->m_material_optix);
 
     spdlog::debug("Creating geometry group for sphere object");
     m_geom_group = m_context->createGeometryGroup();
@@ -65,6 +52,7 @@ int RT_sphere::updateCache() {
     spdlog::debug("Updating caches of sphere object {}", m_strName.toUtf8().constData());
     m_rootGroup->getAcceleration()->markDirty();
     m_geom_group->getAcceleration()->markDirty();
+    m_geom_inst->setMaterial(0, m_material->m_material_optix);
     m_intersection_program["radius"]->setFloat(m_radius);
     m_bounding_box_program["radius"]->setFloat(m_radius);
     m_intersection_program["Rt"]->setMatrix4x4fv(false, m_transform.getData());

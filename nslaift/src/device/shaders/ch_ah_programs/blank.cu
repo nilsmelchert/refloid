@@ -6,7 +6,6 @@
 using namespace optix;
 
 rtDeclareVariable(float3, shading_normal, attribute shading_normal, );
-rtDeclareVariable(optix::float3, front_hit_point, attribute front_hit_point,);
 
 rtDeclareVariable(PerRayData_radiance, prd_radiance, rtPayload, );
 rtDeclareVariable(PerRayData_shadow,   prd_shadow,   rtPayload, );
@@ -21,5 +20,5 @@ RT_PROGRAM void any_hit()
 
 RT_PROGRAM void closest_hit()
 {
-    prd_radiance.radiance = normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, shading_normal))*0.5f + 0.5f;
+    prd_radiance.radiance = make_float3(1.0f);
 }

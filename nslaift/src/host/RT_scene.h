@@ -1,7 +1,3 @@
-//
-// Created by melchert on 30.04.19.
-//
-
 #ifndef NSLAIFT_RT_SCENE_H
 #define NSLAIFT_RT_SCENE_H
 
@@ -81,11 +77,8 @@ public:
     bool                          m_bSceneOk;        ///<   is scene ok, set up properly? can we render???
 
 //    RT_camera*                     m_activeCamera;          ///<   camera through which it is rendered (=active camera)
-    optix::float3                       m_colBackground = {0.0f, 0.0f, 0.0f};   ///<   specify background color for scene
-//
-//    bool                          m_bGlobalShadows;  ///<   globally enable / disable shadowing
-//    int                           m_iMirrorDepth;   ///<   recursion depth of mirroring, defaults to 0 (no reflections at all)
-//
+    optix::float3                       m_colBackground = {0.7f, 0.7f, 0.7f};   ///<   specify default background color for scene
+
     QVector< RT_camera* >            m_cameras;         ///<   list of all scene cameras
     QVector< RT_object* >            m_objects;         ///<   list of all scene objects may also have RT_objectGroup as entries
 //    QVector< RT_lightSource* >       m_lights;          ///<   list of all light sources within scene

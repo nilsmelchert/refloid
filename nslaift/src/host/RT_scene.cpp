@@ -6,6 +6,9 @@ RT_scene::RT_scene()
     setupContext();
     initPrograms();
     initOutputBuffers();
+
+//    m_context->setPrintEnabled(true);
+//    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
 }
 
 RT_scene::~RT_scene()
@@ -226,8 +229,10 @@ void RT_scene::render(int iterations)
         // Writing the rendered data to char vector
         std::vector<unsigned char> img_data = rthelpers::writeBufferToPipe(output_buffer);
 
+        // TODO: Put the saving part as a method in RT_helper.cpp
         // Saving data as tiff image
-        QString img_path = "/tmp/render_";
+//        QString img_path = "/tmp/render_";
+        QString img_path = "/home/melchert/Desktop/rendered_images/render_";
         img_path.append(QString::number(m_render_counter)).append("_");
         img_path.append(camera(cam_idx)->m_strName).append(".tif");
         spdlog::debug("Saving the rendered data from {} as tiff image in path: {}", m_cameras[cam_idx]->m_strName.toUtf8().constData(), img_path.toUtf8().constData());

@@ -32,6 +32,10 @@
 #define BASE_DIR NULL
 #endif
 
+// Defines for ray types considering optix convention
+#define RADIANCE_RAY_TYPE 0
+#define SHADOW_RAY_TYPE 1
+
 extern const char *const SAMPLE_NAME;
 
 namespace rthelpers{

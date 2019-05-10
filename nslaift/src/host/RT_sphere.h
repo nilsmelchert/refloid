@@ -2,9 +2,11 @@
 #define NSLAIFT_RT_SPHERE_H
 
 #include "RT_object.h"
+#include "RT_material.h"
 
 #include <optix.h>
 #include <sutil.h>
+
 
 class RT_sphere : virtual  public RT_object {
 public:
@@ -23,8 +25,6 @@ public:
     optix::Geometry m_sphere;
     optix::GeometryInstance m_geom_inst;
     optix::GeometryGroup m_geom_group;
-    // TODO: This should not by an optix type but nested in the RT_material class
-    optix::Material m_material;
     optix::Transform m_transform_optix;
     float m_radius = 0.1f;
 };
