@@ -28,6 +28,11 @@ void RT_scene::setupContext()
     m_context->setStackSize( stack_size );
     spdlog::debug("Using a stack size of {}", stack_size );
 
+    m_context["max_depth"]->setInt(4);
+    m_context["frame"]->setUint(0u);
+    m_context["importance_cutoff"]->setFloat(0.01f);
+    m_context["scene_epsilon"]->setFloat(500.e-7f); //500.e-7f Advanced Optix Intro
+
     // Creating a top level group - this is the scenes root group
     m_rootGroup = m_context->createGroup();
     m_rootGroup->setAcceleration(m_context->createAcceleration("Trbvh"));
