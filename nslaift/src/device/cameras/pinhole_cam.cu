@@ -29,8 +29,15 @@ RT_PROGRAM void camera()
     uint2 launch_index_cv = launch_index;
     launch_index_cv.y = (height - 1) - launch_index_cv.y;
 
+    // Provides a random number between -veryhighnumber and +veryhighnumber
+    unsigned int seed = tea<16>(screen.x * launch_index_cv.y + launch_index_cv.x, frame);
+    //Subpixel jitter: send the ray through a different position inside the pixel each time,
+    // to provide antialiasing.
+    // Random number generator (the value is between 0 and 1
+    float2 subpixel_jitter = frame == 0 ? make_float2(0.0f) : make_float2(rng(seed) - 0.5f, rng(seed) - 0.5f);
+
     // d is pixel for a casted ray
-    float2 d = (make_float2(launch_index_cv));
+    float2 d = (make_float2(launch_index_cv) + subpixel_jitter);
 
     // calculate distortion from OpenCV distortion parameters
     distort_pixels(d);
@@ -89,7 +96,7 @@ RT_FUNCTION PerRayData_radiance init_per_ray_data()
 {
     PerRayData_radiance prd;
     prd.depth = 0; // Initialize Bounces
-    prd.intensity = 0.0f; //Initialize Multireflection overall Intensity for Calculations
+//    prd.intensity = 0.0f; //Initialize Multireflection overall Intensity for Calculations
     // These represent the current shading state and will be set by the closest-hit or miss program
     // attenuation (<= 1) from surface interaction.
     prd.reflectance = make_float3(1.0f);

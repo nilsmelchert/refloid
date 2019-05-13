@@ -7,8 +7,8 @@ RT_scene::RT_scene()
     initPrograms();
     initOutputBuffers();
 
-//    m_context->setPrintEnabled(true);
-//    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
+    m_context->setPrintEnabled(true);
+    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
 }
 
 RT_scene::~RT_scene()

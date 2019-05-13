@@ -77,7 +77,7 @@ public:
     bool                          m_bSceneOk;        ///<   is scene ok, set up properly? can we render???
 
 //    RT_camera*                     m_activeCamera;          ///<   camera through which it is rendered (=active camera)
-    optix::float3                       m_colBackground = {0.7f, 0.7f, 0.7f};   ///<   specify default background color for scene
+    optix::float3                       m_colBackground = {0.0f, 0.0f, 0.0f};   ///<   specify default background color for scene
 
     QVector< RT_camera* >            m_cameras;         ///<   list of all scene cameras
     QVector< RT_object* >            m_objects;         ///<   list of all scene objects may also have RT_objectGroup as entries

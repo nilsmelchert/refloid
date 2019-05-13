@@ -6,7 +6,8 @@ m_context(context)
     m_material_optix = m_context->createMaterial();
 
     // Default material is set to rendering normals
-    setMaterialType("normal");
+    setMaterialType("phong");
+//    setMaterialType("normal");
 }
 
 RT_material::~RT_material() {
@@ -15,7 +16,6 @@ RT_material::~RT_material() {
 
 void RT_material::setMaterialType(QString &mat_type, QString &parameters) {
     // TODO: Parse material parameters depending of brdf function
-
     std::string ptx_mat_path;
     optix::Program ch_pgrm;
     optix::Program ah_pgrm;
@@ -33,7 +33,10 @@ void RT_material::setMaterialType(QString &mat_type, QString &parameters) {
         ptx_mat_path = rthelpers::ptxPath(mat_type.append(".cu").toStdString());
         ch_pgrm = m_context->createProgramFromPTXFile(ptx_mat_path, "closest_hit");
         ah_pgrm = m_context->createProgramFromPTXFile(ptx_mat_path, "any_hit");
-        // TODO: define variables e.g.: ch_pgrm["Kd"]->setFloat(phongParam)
+        // Setting default parameters
+        ch_pgrm["Kd"]->setFloat(0.4f, 0.4f, 0.4f);
+        ch_pgrm["Ks"]->setFloat(0.2f, 0.2f, 0.2f);
+        ch_pgrm["specular_exponent"]->setFloat(2);
     } else {
         spdlog::error("Material type \"{}\" is not implemented. Please specify a valid material type", mat_type.toStdString());
     }
