@@ -10,13 +10,6 @@
 
 using namespace optix;
 
-// TODO: need to be implemented
-//rtDeclareVariable(int,               max_depth, , );
-//rtBuffer<BasicLight>                 lights;
-//rtDeclareVariable(float3,            ambient_light_color, , );
-//rtDeclareVariable(float,             scene_epsilon, , );
-//rtDeclareVariable(rtObject,          top_object, , );
-
 // Attributes
 rtDeclareVariable(float3, geometric_normal, attribute geometric_normal, );
 rtDeclareVariable(float3, shading_normal, attribute shading_normal, );
