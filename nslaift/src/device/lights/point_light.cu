@@ -10,7 +10,7 @@ rtDeclareVariable(optix::Matrix4x4, Rt, ,);
 rtDeclareVariable(optix::Matrix4x4, Rt_inv, ,);
 rtDeclareVariable(optix::float3, color, ,);
 
-RT_CALLABLE_PROGRAM void light(float3 const& point, const float2 sample, LightDefinition& lightDef)
+RT_CALLABLE_PROGRAM void light(float3 const& point, LightDefinition& lightDef)
 {
     float3 light_position = make_float3(Rt.getCol(3));
     lightDef.distance = length(light_position - point);

@@ -30,8 +30,7 @@ rtDeclareVariable(optix::float3, Kd, ,);
 rtDeclareVariable(optix::float3, Ks, ,);
 rtDeclareVariable(float, specular_exponent, ,);
 
-rtBuffer<rtCallableProgramId<void(float3 const &point, const float2 sample,
-                                  LightDefinition &lightDef)> > sysLightBuffer;
+rtBuffer<rtCallableProgramId<void(float3 const &point, LightDefinition &lightDef)> > sysLightBuffer;
 
 RT_PROGRAM void any_hit()
 {
@@ -62,9 +61,8 @@ RT_PROGRAM void closest_hit()
 
     LightDefinition light_def;
     for (int i=0; i<light_count; i++) {
-//      TODO: LICHTER HIER. FOR NOW DUMMY:
-        sysLightBuffer[i](fhp_world, make_float2(1.0f), light_def);
-
+        /// Iterating through lights by using buffers of callable programs ids
+        sysLightBuffer[i](fhp_world, light_def);
 
         PerRayData_shadow prdShadow;
         prdShadow.visible = true; // Initialize for miss.
@@ -75,6 +73,7 @@ RT_PROGRAM void closest_hit()
                                                 light_def.distance - scene_epsilon);
         rtTrace(sysTopObject, shadow_ray, prdShadow); // Trace Shadow Ray
 
+        /// Checking if shadow ray reaches light. If so, render the point. Else dont do anything and set the point to black
         if (prdShadow.visible) {
             const float cosAngIncidence = optix::clamp(optix::dot(N, light_def.wi), 0.0f, 1.0f);
             const float3 R = optix::normalize(2 * cosAngIncidence * N - light_def.wi);

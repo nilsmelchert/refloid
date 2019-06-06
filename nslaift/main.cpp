@@ -55,8 +55,9 @@ void parse_data(RT_scene* scene, QString& zmq_rec_data)
     } else if (0 == sList.at(0).compare("manipulateObject", Qt::CaseInsensitive)){
         scene->manipulateObject(sList.at(1), sList.at(2), sList.at(3));
     } else if (0 == sList.at(0).compare("render", Qt::CaseInsensitive)) {
-        scene->updateCaches();
-        scene->render();
+        if (scene->updateCaches() > -1) {
+            scene->render();
+        }
     } else if (0 == sList.at(0).compare("deleteObject", Qt::CaseInsensitive)){
         scene->deleteObject(sList.at(1));
     } else if (0 == sList.at(0).compare("setMaterial", Qt::CaseInsensitive)){

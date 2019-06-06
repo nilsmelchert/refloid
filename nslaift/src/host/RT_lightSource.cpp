@@ -107,9 +107,8 @@ int RT_lightSource::parseActions(const QString &action, const QString &parameter
 /**
   @brief    update all transformation cache variables
   @return   returns 0 on success; non-zero on errors
-
-  Be sure to call this before influenceOn()
   **/
 int RT_lightSource::updateCache() {
-    return 0;
+    // Dummy implementation
+    return 0; ///> This function should be overloaded by classes which inherit from this class e.g. RT_lightPoint
 }

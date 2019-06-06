@@ -26,8 +26,9 @@ public:
     optix::float3 m_baseColor;
     float m_power;
 
-    static bool m_isBufferInitialized; ///< The buffer has to be initialized once only! So its is defined as static.
+    static bool m_isBufferInitialized; ///< The buffer has to be initialized once only! So its is defined as static
     static unsigned int m_light_count; ///< This is the counter for all light sources that are assigned to the scene
+    unsigned int m_light_idx; ///< This variable hold the index of the light source. Classes which inherit from this class need to explicitly set this variable
 };
 
 
