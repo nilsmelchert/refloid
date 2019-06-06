@@ -42,7 +42,7 @@ namespace rthelpers{
     int RT_parse_float3(const QString &str, float *x, float *y, float *z, const QString& delimiter = QString(","));
     int RT_parse_matrix(const QString &str, optix::Matrix4x4 *matconst, const QString& delimiter = QString(","));
     std::string ptxPath(const std::string &cuda_file);
-    std::string printMat4x4(optix::Matrix4x4& mat);
+    std::string printMat4x4(optix::Matrix4x4 &mat);
     std::vector<unsigned char> writeBufferToPipe(optix::Buffer buffer);
     std::vector<unsigned char> writeBufferToPipe(RTbuffer buffer);
     int RT_parse2double(const QString &str, double *x, double *y, const QString &delimiter /*= QString(",")*/);

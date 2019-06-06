@@ -28,27 +28,10 @@
   Scene objects can be lenses, geometric objects, etc... even object groups
 **/
 class RT_object {
-public:
-    optix::Context& m_context;
-    ///< transformation matrix of object
-    optix::Matrix4x4 m_transform;
-    ///< state if m_polyDataTransformed must be recalculated
-    bool m_bTransformCacheUpToDate;
-
-    ///< readable name
-    QString m_strName;
-    ///< object material/color
-    RT_material *m_material;
-
-    ///< shall object be visible? (VTK and rendering)
-    bool m_bVisible;
-    ///< =NULL    pointer to the occupying objectGroup
-    RT_object *m_parent;
-    QString m_ObjType;
 
 public:
     // Object memory management
-    RT_object(optix::Context &context, RT_object *parent = NULL);
+    RT_object(optix::Context &context, RT_object *parent = nullptr);
     virtual ~RT_object();
 
     virtual bool setParent(RT_object *object);
@@ -83,6 +66,24 @@ public:
     virtual optix::Matrix4x4 transformationMatrix();                  //get transformation matrix
 
     virtual const optix::float3 position() const;
+
+public:
+    optix::Context &m_context;
+    ///< transformation matrix of object
+    optix::Matrix4x4 m_transform;
+    ///< state if m_polyDataTransformed must be recalculated
+    bool m_bTransformCacheUpToDate;
+
+    ///< readable name
+    QString m_strName;
+    ///< object material/color
+    RT_material *m_material;
+
+    ///< shall object be visible? (VTK and rendering)
+    bool m_bVisible;
+    ///< =NULL    pointer to the occupying objectGroup
+    RT_object *m_parent;
+    QString m_ObjType;
 };
 
 #endif //NSLAIFT_RTOBJECT_H

@@ -1,4 +1,6 @@
 #include "RT_scene.h"
+#include "RT_lightPoint.h"
+#include "RT_helper.h"
 
 RT_scene::RT_scene()
 {
@@ -7,8 +9,24 @@ RT_scene::RT_scene()
     initPrograms();
     initOutputBuffers();
 
-    m_context->setPrintEnabled(true);
-    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
+    auto *lp = new RT_lightPoint(m_context);
+    lp->translate(0.0f, 10.0f, 0.0f);
+    lp->setColor(0.0f, 0.0f, 1.0f);
+    lp->updateCache();
+
+    auto *lp2 = new RT_lightPoint(m_context);
+    lp2->translate(0.0f, -10.0f,0.0f);
+    lp2->setColor(1.0f, 0.0f, 0.0f);
+    lp2->updateCache();
+
+    auto *lp3 = new RT_lightPoint(m_context);
+    lp3->translate(10.0f, 0.0f,0.0f);
+    lp3->setColor(0.0f, 1.0f, 0.0f);
+    lp3->updateCache();
+    // TODO: Getting sigsegv when trying to implement a light
+
+//    m_context->setPrintEnabled(true);
+//    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
 }
 
 RT_scene::~RT_scene()

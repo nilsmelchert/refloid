@@ -4,6 +4,7 @@ OPTIX_add_sample_executable( nslaift
 
         src/device/cameras/pinhole_cam.h
         src/device/cameras/pinhole_cam.cu
+        src/device/lights/point_light.cu
         src/device/shaders/miss_programs/miss.cu
         src/device/intersection_programs/sphere_intersect.cu
         src/device/shaders/ch_ah_programs/normal.cu
@@ -34,6 +35,8 @@ OPTIX_add_sample_executable( nslaift
         src/host/RT_lightSource.cpp
         src/host/RT_light.h
         src/host/RT_light.cpp
+        src/host/RT_lightPoint.h
+        src/host/RT_lightPoint.cpp
   )
 
 

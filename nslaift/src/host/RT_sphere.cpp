@@ -53,10 +53,8 @@ int RT_sphere::updateCache() {
     m_rootGroup->getAcceleration()->markDirty();
     m_geom_group->getAcceleration()->markDirty();
     m_geom_inst->setMaterial(0, m_material->m_material_optix);
-    m_intersection_program["radius"]->setFloat(m_radius);
-    m_bounding_box_program["radius"]->setFloat(m_radius);
-    m_intersection_program["Rt"]->setMatrix4x4fv(false, m_transform.getData());
-    m_bounding_box_program["Rt"]->setMatrix4x4fv(false, m_transform.getData());
+    m_geom_inst["radius"]->setFloat(m_radius);
+    m_geom_inst["Rt"]->setMatrix4x4fv(false, m_transform.getData());
 }
 
 /**

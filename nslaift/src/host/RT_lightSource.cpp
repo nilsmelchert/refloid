@@ -1,3 +1,4 @@
+#include "RT_object.h"
 #include "RT_lightSource.h"
 
 /**
@@ -10,6 +11,11 @@ RT_lightSource::RT_lightSource(optix::Context &context, RT_object *parent /*NULL
 {
     m_baseColor = optix::make_float3(1.0f);     ///< multiplicator of color
     m_power = 1.0f;                         ///< base color
+    if (!m_isBufferInitialized)
+    {
+        m_context["sysLightBuffer"]->setBuffer(m_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_PROGRAM_ID, 1000));
+        m_isBufferInitialized = true;
+    }
 }
 
 /**
@@ -18,6 +24,10 @@ RT_lightSource::RT_lightSource(optix::Context &context, RT_object *parent /*NULL
 RT_lightSource::~RT_lightSource() {
 
 }
+
+bool RT_lightSource::m_isBufferInitialized = false;
+
+unsigned int RT_lightSource::m_light_count = 0;
 
 /**
   @brief    set light source power
@@ -65,7 +75,6 @@ optix::float3 RT_lightSource::color() const {
     return m_baseColor;
 }
 
-
 /**
   @brief    parse parameters
   @param    action  string describing action to perform
@@ -102,6 +111,5 @@ int RT_lightSource::parseActions(const QString &action, const QString &parameter
   Be sure to call this before influenceOn()
   **/
 int RT_lightSource::updateCache() {
-    m_bTransformCacheUpToDate = true;
     return 0;
 }

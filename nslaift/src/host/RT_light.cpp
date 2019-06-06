@@ -28,8 +28,8 @@ void RT_light::initDefaultLightDefinition()
 {
     // Initialize light as pointlight which is located in origin in world coordinates
     m_light_definition.type = LIGHT_POINTLIGHT;
-    m_light_definition.Rt = m_light_definition.Rt_inv = optix::Matrix4x4::identity();
-    m_light_definition.K = m_light_definition.K_inv = optix::Matrix4x4::identity(); // This parameter is only needed for projectors
+//    m_light_definition.Rt = m_light_definition.Rt_inv = optix::Matrix4x4::identity();
+//    m_light_definition.K = m_light_definition.K_inv = optix::Matrix4x4::identity(); // This parameter is only needed for projectors
     m_light_definition.emission = optix::make_float3(130000.0f, 130000.0f, 13.0000f);
     m_light_definition.normal = optix::make_float3(0.0f, 0.0f, 1.0f);
     m_light_definition.area = 1.0f;

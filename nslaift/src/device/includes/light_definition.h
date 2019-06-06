@@ -20,10 +20,6 @@ struct LightDefinition
 #if defined(__cplusplus)
     typedef optix::float3 float3;
 #endif
-    optix::Matrix4x4 K;
-    optix::Matrix4x4 K_inv;
-    optix::Matrix4x4 Rt;
-    optix::Matrix4x4 Rt_inv;
 
     // Only for parallelogram
     float3 vecU;
