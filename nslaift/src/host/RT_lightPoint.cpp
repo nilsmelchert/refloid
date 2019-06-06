@@ -9,12 +9,10 @@
 //RT_lightPoint::RT_lightPoint(optix::Context &context, RT_object *parent /*=NULL*/) : RT_lightSource(context, parent) // Stack overflow: https://stackoverflow.com/questions/56184941/how-to-fix-error-no-matching-function-for-call-to-when-inheriting-twice-from
 RT_lightPoint::RT_lightPoint(optix::Context &context, RT_object *parent /*=NULL*/) : RT_object(context, parent), RT_lightSource(context, parent) ///-> Need to call RT_object explicitly since its is a virtual lightSource inherits from a virtual RT_object
 {
-    m_ObjType = "light";
+    m_ObjType = "lightpoint";
     m_decayRadius = 1.0f;
     std::string ptx_path_lights(rthelpers::ptxPath("point_light.cu")); // ptx path ray generation program
     m_point_light_prgm = m_context->createProgramFromPTXFile(ptx_path_lights, "light");
-    m_light_count++;
-    m_light_idx = m_light_count - 1;
 }
 
 /**
@@ -79,7 +77,7 @@ int RT_lightPoint::updateCache() {
     optix::Buffer LightsBuffer = m_context["sysLightBuffer"]->getBuffer();
 
     int* sampleLight = (int*) LightsBuffer->map(0, RT_BUFFER_MAP_READ_WRITE);
-    sampleLight[m_light_count-1] = m_point_light_prgm->getId();
+    sampleLight[m_light_idx] = m_point_light_prgm->getId();
     LightsBuffer->unmap();
     m_context["light_count"]->setUint(m_light_count);
 

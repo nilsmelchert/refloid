@@ -16,6 +16,8 @@ RT_lightSource::RT_lightSource(optix::Context &context, RT_object *parent /*NULL
         m_context["sysLightBuffer"]->setBuffer(m_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_PROGRAM_ID, 1000));
         m_isBufferInitialized = true;
     }
+    RT_lightSource::m_light_count++;
+    m_light_idx = RT_lightSource::m_light_count - 1;
 }
 
 /**

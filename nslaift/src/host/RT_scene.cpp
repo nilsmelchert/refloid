@@ -9,25 +9,6 @@ RT_scene::RT_scene()
     initPrograms();
     initOutputBuffers();
 
-    createObject("light_point", "pointlight");
-    manipulateObject("light_point", "color", "1.0,0.0,0.0");
-
-//    auto *lp = new RT_lightPoint(m_context);
-//    lp->translate(0.0f, 10.0f, 0.0f);
-//    lp->setColor(0.0f, 0.0f, 1.0f);
-//    lp->updateCache();
-//
-//    auto *lp2 = new RT_lightPoint(m_context);
-//    lp2->translate(0.0f, -10.0f,0.0f);
-//    lp2->setColor(1.0f, 0.0f, 0.0f);
-//    lp2->updateCache();
-//
-//    auto *lp3 = new RT_lightPoint(m_context);
-//    lp3->translate(10.0f, 0.0f,0.0f);
-//    lp3->setColor(0.0f, 1.0f, 0.0f);
-//    lp3->updateCache();
-    // TODO: Getting sigsegv when trying to implement a light
-
 //    m_context->setPrintEnabled(true);
 //    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
 }
@@ -121,15 +102,17 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType, c
         }
         sphere->setName(name);
         addObject(sphere);
-    } else if (0 == objType.compare("pointlight", Qt::CaseInsensitive)) {
-        auto* point_light = new RT_lightPoint(m_context);
+    } else if (0 == objType.compare("lightpoint", Qt::CaseInsensitive)) {
+        auto* lightpoint = new RT_lightPoint(m_context);
         if (!objParams.isEmpty()) {
             // TODO: implement setting light source parameters
         } else {
-            spdlog::debug("No object parameters were given for point light object: {}", point_light->m_strName.toUtf8().constData());
+            spdlog::debug("No object parameters were given for point light object: {}", lightpoint->m_strName.toUtf8().constData());
         }
-        point_light->setName(name);
-        addLightSource(point_light);
+        lightpoint->setName(name);
+        addLightSource(lightpoint);
+    } else {
+        spdlog::warn("No valid object type was entered. Object could not be created.");
     }
     return nullptr;
 }
@@ -139,7 +122,8 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType)
     return createObject(name, objType, "");
 }
 
-int RT_scene::deleteObject(const QString &name) {
+int RT_scene::deleteObject(const QString &name)
+{
     if (name.isEmpty()) {
         spdlog::error("Object not named");
         return -1;
@@ -197,7 +181,7 @@ int RT_scene::manipulateObject(const QString &name, const QString &action, const
     if(object) {
         return manipulateObject(object, action, parameters);
     } else {
-        spdlog::error("Object {1} not found", name.toUtf8().constData());
+        spdlog::error("Object you specified by name {} not found", name.toStdString());
         return -1;
     }
 }
@@ -634,7 +618,7 @@ int RT_scene::addLightSource(RT_lightSource *obj)
             return lightSourceIndex(obj);
         }
 
-        m_lights.push_back(obj);                   //it's really a new one; add its
+        m_lights.push_back(obj);                   //it's really a new one; add it
         return m_lights.size() - 1;
     } else {
         return -1;
@@ -661,7 +645,7 @@ int RT_scene::removeLightSource(int idx)
     if (idx < 0)
         return -1;
     if (idx < m_lights.size()) {
-            delete m_lights.at(idx);
+        delete m_lights.at(idx);
         m_lights.remove(idx);
         return idx;
     } else

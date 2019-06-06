@@ -13,6 +13,10 @@ if __name__ == '__main__':
     socket = context.socket(zmq.REQ)
     socket.connect("tcp://localhost:5555")
 
+    send_zmq_msg("createObject;lightpoint1;lightpoint")
+    send_zmq_msg("manipulateObject;lightpoint1;translate;10.0,0.0,0.0")
+    send_zmq_msg("manipulateObject;lightpoint1;color;1.0,0.0,0.0")
+
     send_zmq_msg("createObject;cam1;camera")
     send_zmq_msg("manipulateObject;cam1;translate;0.0,0.0,0.0")
     send_zmq_msg("createObject;cam2;camera")
@@ -22,10 +26,19 @@ if __name__ == '__main__':
     send_zmq_msg("manipulateObject;sphere1;translate;0.0,-0.1,2.0")
     send_zmq_msg("render")
 
+    send_zmq_msg("createObject;lightpoint2;lightpoint")
+    send_zmq_msg("manipulateObject;lightpoint2;translate;-10.0,0.0,0.0")
+    send_zmq_msg("manipulateObject;lightpoint2;color;0.0,0.0,1.0")
+
     send_zmq_msg("createObject;sphere2;sphere")
     send_zmq_msg("manipulateObject;sphere2;translate;0.0,0.0,9.0")
     send_zmq_msg("manipulateObject;sphere2;radius;4")
     # send_zmq_msg("manipulateObject;sphere2;setmaterial;blank")
+    send_zmq_msg("render")
+
+    send_zmq_msg("manipulateObject;lightpoint2;color;0.0,1.0,0.0")
+    send_zmq_msg("render")
+    send_zmq_msg("manipulateObject;lightpoint2;translate;0.0,10.0,0.0")
     send_zmq_msg("render")
 
     # send_zmq_msg("deleteObject;cam1")
