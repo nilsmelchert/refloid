@@ -40,6 +40,13 @@ if __name__ == '__main__':
     send_zmq_msg("render")
     send_zmq_msg("manipulateObject;lightpoint2;translate;0.0,10.0,0.0")
     send_zmq_msg("render")
+    send_zmq_msg("deleteObject;lightpoint2")
+    send_zmq_msg("render")
+    send_zmq_msg("deleteObject;lightpoint1")
+
+    send_zmq_msg("render")
+    send_zmq_msg("createObject;lightpoint1;lightpoint")
+    send_zmq_msg("render")
 
     # send_zmq_msg("deleteObject;cam1")
     send_zmq_msg("manipulateObject;sphere2;radius;3")

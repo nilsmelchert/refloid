@@ -220,10 +220,7 @@ int RT_scene::updateCaches(bool force)
     // Updating background color in the miss program
     m_miss_program["miss_color"]->setFloat(m_colBackground);
 
-    if (m_lights.empty()) {
-        spdlog::error("No lights were specified! Could not render scene!");
-        return -1;
-    } else if (m_cameras.empty()) {
+    if (m_cameras.empty()) {
         spdlog::error("No cameras were specified! Could not render scene!");
         return -1;
     }
@@ -234,8 +231,13 @@ int RT_scene::updateCaches(bool force)
     for (int obj_idx=0; obj_idx<m_objects.size(); obj_idx++){
         m_objects[obj_idx]->updateCache();
     }
-    for (int light_idx=0; light_idx<m_lights.size(); light_idx++){
-        m_lights[light_idx]->updateCache();
+    if (!m_lights.empty())
+    {
+        for (int light_idx=0; light_idx<m_lights.size(); light_idx++){
+            m_lights[light_idx]->updateCache();
+        }
+    } else {
+        m_context["light_count"]->setUint(0);
     }
 
     // Checking if everything was configured correctly in the optix context

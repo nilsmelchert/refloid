@@ -9,6 +9,7 @@
   **/
 RT_lightSource::RT_lightSource(optix::Context &context, RT_object *parent /*NULL*/) : RT_object(context, parent)
 {
+    m_ObjType = "light";
     m_baseColor = optix::make_float3(1.0f);     ///< multiplicator of color
     m_power = 1.0f;                         ///< base color
     if (!m_isBufferInitialized)
