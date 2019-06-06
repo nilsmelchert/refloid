@@ -76,14 +76,9 @@ int RT_lightPoint::updateCache() {
 
     optix::Buffer LightsBuffer = m_context["sysLightBuffer"]->getBuffer();
 
-//    RTsize wi;
-//    LightsBuffer->getSize(wi);
-//    std::cout << wi << std::endl;
     int* sampleLight = (int*) LightsBuffer->map(0, RT_BUFFER_MAP_READ_WRITE);
-    // TODO: Implement counter for light sources
-    sampleLight[m_light_count-1] = m_point_light_prgm->getId();
+    sampleLight[m_light_idx] = m_point_light_prgm->getId();
     LightsBuffer->unmap();
-//    std::cout << m_light_count << std::endl;
     m_context["light_count"]->setUint(m_light_count);
 
     return 0;

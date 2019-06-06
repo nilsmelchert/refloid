@@ -8,21 +8,27 @@ RT_scene::RT_scene()
     setupContext();
     initPrograms();
     initOutputBuffers();
+    createObject("light_point", "lightpoint");
+    manipulateObject("light_point", "color", "1.0,0.0,0.0");
+    createObject("light_point2", "lightpoint");
+    manipulateObject("light_point2", "color", "0.0,0.0,1.0");
+    manipulateObject("light_point2", "translate", "10.0,0.0,0.0");
 
-    auto *lp = new RT_lightPoint(m_context);
-    lp->translate(0.0f, 10.0f, 0.0f);
-    lp->setColor(0.0f, 0.0f, 1.0f);
-    lp->updateCache();
+//    auto *lp = new RT_lightPoint(m_context);
+//    lp->translate(0.0f, 10.0f, 0.0f);
+//    lp->setColor(0.0f, 0.0f, 1.0f);
 
-    auto *lp2 = new RT_lightPoint(m_context);
-    lp2->translate(0.0f, -10.0f,0.0f);
-    lp2->setColor(1.0f, 0.0f, 0.0f);
-    lp2->updateCache();
+//    auto *lp2 = new RT_lightPoint(m_context);
+//    lp2->translate(0.0f, -10.0f,0.0f);
+//    lp2->setColor(1.0f, 0.0f, 0.0f);
+//
+//    auto *lp3 = new RT_lightPoint(m_context);
+//    lp3->translate(10.0f, 0.0f,0.0f);
+//    lp3->setColor(0.0f, 1.0f, 0.0f);
 
-    auto *lp3 = new RT_lightPoint(m_context);
-    lp3->translate(10.0f, 0.0f,0.0f);
-    lp3->setColor(0.0f, 1.0f, 0.0f);
-    lp3->updateCache();
+//    lp->updateCache();
+//    lp2->updateCache();
+//    lp3->updateCache();
     // TODO: Getting sigsegv when trying to implement a light
 
 //    m_context->setPrintEnabled(true);
@@ -196,7 +202,7 @@ int RT_scene::manipulateObject(const QString &name, const QString &action, const
     if(object) {
         return manipulateObject(object, action, parameters);
     } else {
-        spdlog::error("Object {1} not found", name.toUtf8().constData());
+        spdlog::error("Object you specified by name {} not found", name.toStdString());
         return -1;
     }
 }
@@ -240,6 +246,9 @@ int RT_scene::updateCaches(bool force)
     }
     for (int obj_idx=0; obj_idx<m_objects.size(); obj_idx++){
         m_objects[obj_idx]->updateCache();
+    }
+    for (int light_idx=0; light_idx<m_lights.size(); light_idx++){
+        m_lights[light_idx]->updateCache();
     }
 
     // Checking if everything was configured correctly in the optix context
@@ -334,10 +343,9 @@ RT_object*   RT_scene::findObject(const QString& name) const
     if ( (idx = objectIndex(name)) >= 0) {
         return object(idx);
     }
-    //TODO: IMPLEMENT
-//    if ( (idx = lightSourceIndex(name)) >= 0) {
-//        return lightSource(idx);
-//    }
+    if ( (idx = lightSourceIndex(name)) >= 0) {
+        return lightSource(idx);
+    }
     return nullptr;
 }
 
@@ -620,7 +628,7 @@ int RT_scene::addLightSource(RT_lightSource *obj)
             return lightSourceIndex(obj);
         }
 
-        m_lights.push_back(obj);                   //it's really a new one; add its
+        m_lights.push_back(obj);                   //it's really a new one; add it
         return m_lights.size() - 1;
     } else {
         return -1;
