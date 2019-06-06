@@ -9,10 +9,10 @@
 //RT_lightPoint::RT_lightPoint(optix::Context &context, RT_object *parent /*=NULL*/) : RT_lightSource(context, parent) // Stack overflow: https://stackoverflow.com/questions/56184941/how-to-fix-error-no-matching-function-for-call-to-when-inheriting-twice-from
 RT_lightPoint::RT_lightPoint(optix::Context &context, RT_object *parent /*=NULL*/) : RT_object(context, parent), RT_lightSource(context, parent) ///-> Need to call RT_object explicitly since its is a virtual lightSource inherits from a virtual RT_object
 {
+    m_ObjType = "lightpoint";
     m_decayRadius = 1.0f;
     std::string ptx_path_lights(rthelpers::ptxPath("point_light.cu")); // ptx path ray generation program
     m_point_light_prgm = m_context->createProgramFromPTXFile(ptx_path_lights, "light");
-    m_light_count++;
 }
 
 /**

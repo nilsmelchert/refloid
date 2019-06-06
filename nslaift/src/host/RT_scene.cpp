@@ -118,6 +118,17 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType, c
         }
         sphere->setName(name);
         addObject(sphere);
+    } else if (0 == objType.compare("lightpoint", Qt::CaseInsensitive)) {
+        auto* lightpoint = new RT_lightPoint(m_context);
+        if (!objParams.isEmpty()) {
+            // TODO: implement setting light source parameters
+        } else {
+            spdlog::debug("No object parameters were given for point light object: {}", lightpoint->m_strName.toUtf8().constData());
+        }
+        lightpoint->setName(name);
+        addLightSource(lightpoint);
+    } else {
+        spdlog::warn("No valid object type was entered. Object could not be created.");
     }
     return nullptr;
 }
@@ -127,7 +138,8 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType)
     return createObject(name, objType, "");
 }
 
-int RT_scene::deleteObject(const QString &name) {
+int RT_scene::deleteObject(const QString &name)
+{
     if (name.isEmpty()) {
         spdlog::error("Object not named");
         return -1;
@@ -151,7 +163,20 @@ int RT_scene::deleteObject(const QString &name) {
             delete obj;
         }
         else if (0 == obj->m_ObjType.compare("light")) {
+            spdlog::debug("Deleting light source object {}", obj->m_strName.toUtf8().constData());
+            int light_idx = lightSourceIndex(name);
+            int buff_idx = m_lights.at(light_idx)->m_light_idx;
+            for (int i=0; i<m_lights.size(); i++)
+            {
+                if (m_lights.at(i)->m_light_idx > buff_idx)
+                {
+                    m_lights.at(i)->m_light_idx--;
+                }
+            }
+            RT_lightSource::m_light_count--; ///< Decreasing static light counter
             // TODO: delete light object
+            m_lights.remove(lightSourceIndex(name));
+            delete obj;
         }
     } else {
         spdlog::error("No object type was specified for object {}", obj->m_strName.toUtf8().constData());
@@ -568,3 +593,125 @@ QString RT_scene::objectName(int idx) const
         return QString();
     return  m_objects.at(idx)->name();
 }
+
+///////////////// end: object handlers ////////////////
+
+///////////////// begin: lightsource handlers ////////////////
+
+/**
+  @brief    add a RTLightSource to the scene, object can also be RTobjectGroup
+  @param    obj pointer to RTLightSource to add to scene
+  @return   >= 0: object id (index in vector)
+            < 0: error
+
+   -RTLightSources cannot be added twice (same pointer not allowed more than once)
+   -two objects cannot share the exactly same name(!); empty names will be auto-filled by address-to-textstring
+ **/
+int RT_scene::addLightSource(RT_lightSource *obj)
+{
+    if (nullptr != dynamic_cast<RT_lightSource*> (obj)) {
+        if (obj->m_strName.isEmpty()) {                     //no object name, use pointer address as an object name
+            obj->m_strName = QString::number( reinterpret_cast<size_t> (obj), 16);
+        }
+        if (lightSourceIndex(obj->name()) >= 0) {           //if object already known by name
+            return -1;
+        }
+        if (lightSourceIndex(obj) >= 0) {             //object already added, return its index
+            return lightSourceIndex(obj);
+        }
+
+        m_lights.push_back(obj);                   //it's really a new one; add its
+        return m_lights.size() - 1;
+    } else {
+        return -1;
+    }
+}
+
+/**
+  @brief    determine lightSource count
+  @return   number of lightSource in vector lightSource
+  **/
+int RT_scene::countLightSources() const
+{
+    return m_lights.size();
+}
+
+/**
+  @brief    remove some lightSource from scene
+  @param    idx index of lightSource to be removed
+  @return   >= 0: index of removed lightSource
+            <0: failure (lightSource not found, out of range)
+  **/
+int RT_scene::removeLightSource(int idx)
+{
+    if (idx < 0)
+        return -1;
+    if (idx < m_lights.size()) {
+        delete m_lights.at(idx);
+        m_lights.remove(idx);
+        return idx;
+    } else
+        return -1;
+}
+
+/**
+  @brief    get pointer to lightSource from scene
+  @param    idx index of lightSource
+  @return   pointer to the lightSource or nullptr if idx out of range
+  **/
+RT_lightSource*   RT_scene::lightSource(int idx) const
+{
+    if (idx < 0)
+        return nullptr;
+    if (idx >= m_lights.size())
+        return nullptr;
+    return m_lights[idx];
+}
+
+/**
+  @brief    get object index from lightSource name
+  @param    name    name of lightSource to look for
+  @return   >= 0: index of lightSource
+            <0: named lightSource not found
+  **/
+int RT_scene::lightSourceIndex(const QString& name) const
+{
+    for(int i = 0; i < m_lights.size(); i++) {
+        if( 0 == name.compare( m_lights.at(i)->m_strName, Qt::CaseInsensitive )) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/**
+  @brief    get object index from lightSource memory location
+  @param    pObject   pointer to lightSource
+  @return   >= 0: index of lightSource
+            <0:  lightSource not in this list
+  **/
+int RT_scene::lightSourceIndex(const RT_lightSource* pSource) const
+{
+    for(int i = 0; i < m_lights.size(); i++) {
+        if( (m_lights.at(i)) == pSource ) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/**
+  @brief    get name of lightSource
+  @param    idx lightSource index
+  @return   the lightSource's name
+  **/
+QString RT_scene::lightSourceName(int idx) const
+{
+    if (idx < 0)
+        return QString();
+    if (idx >= m_lights.size())
+        return QString();
+    return  m_lights.at(idx)->name();
+}
+
+///////////////// end: lightsource handlers ////////////////

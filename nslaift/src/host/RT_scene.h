@@ -56,14 +56,14 @@ public:
     QString     objectName(int idx) const;
 
 
-//    int         addLightSource(RT_lightSource *l);
-//    int         countLightSources() const;
-//    int         removeLightSource(int idx);
-//    RT_lightSource* lightSource(int idx) const;
-//    int         lightSourceIndex(const QString& name) const;
-//    int         lightSourceIndex(const RT_lightSource* pSource) const;
-//    QString     lightSourceName(int idx) const;
-//
+    int         addLightSource(RT_lightSource *l);
+    int         countLightSources() const;
+    int         removeLightSource(int idx);
+    RT_lightSource* lightSource(int idx) const;
+    int         lightSourceIndex(const QString& name) const;
+    int         lightSourceIndex(const RT_lightSource* pSource) const;
+    QString     lightSourceName(int idx) const;
+
     RT_object*   findObject(const QString& name) const;
 //    int         deleteObject(const QString& name);
 //
@@ -82,7 +82,7 @@ public:
 
     QVector< RT_camera* >            m_cameras;         ///<   list of all scene cameras
     QVector< RT_object* >            m_objects;         ///<   list of all scene objects may also have RT_objectGroup as entries
-//    QVector< RT_lightSource* >       m_lights;          ///<   list of all light sources within scene
+    QVector< RT_lightSource* >       m_lights;          ///<   list of all light sources within scene
 public:
     void render(int iterations=1);
     optix::Group m_rootGroup;
