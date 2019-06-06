@@ -8,11 +8,11 @@ RT_scene::RT_scene()
     setupContext();
     initPrograms();
     initOutputBuffers();
-    createObject("light_point", "lightpoint");
-    manipulateObject("light_point", "color", "1.0,0.0,0.0");
-    createObject("light_point2", "lightpoint");
-    manipulateObject("light_point2", "color", "0.0,0.0,1.0");
-    manipulateObject("light_point2", "translate", "10.0,0.0,0.0");
+//    createObject("light_point", "lightpoint");
+//    manipulateObject("light_point", "color", "1.0,0.0,0.0");
+//    createObject("light_point2", "lightpoint");
+//    manipulateObject("light_point2", "color", "0.0,0.0,1.0");
+//    manipulateObject("light_point2", "translate", "10.0,0.0,0.0");
 
 //    auto *lp = new RT_lightPoint(m_context);
 //    lp->translate(0.0f, 10.0f, 0.0f);
