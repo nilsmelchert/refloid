@@ -161,7 +161,6 @@ int RT_camera::updateCache() {
         m_ray_gen_pgrm["Rt_inv"]->setMatrix4x4fv(false, m_transform.inverse().getData());
         m_ray_gen_pgrm["K"]->setMatrix4x4fv(false, m_K.getData());
         m_ray_gen_pgrm["K_inv"]->setMatrix4x4fv(false, m_K.inverse().getData());
-//        m_ray_gen_pgrm["entry_point_idx"]->setUint(m_iCameraIdx);
 
         optix::Buffer distBuff = m_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_FLOAT, 5);
         // Copy data into OptiX buffer

@@ -9,6 +9,7 @@ RT_scene::RT_scene()
     initPrograms();
     initOutputBuffers();
 
+//    Use this to debug CUDA PTX Code:
 //    m_context->setPrintEnabled(true);
 //    m_context->setExceptionEnabled(RT_EXCEPTION_ALL, true);
 }
@@ -61,6 +62,9 @@ void RT_scene::initOutputBuffers()
     m_context["sysAccumBuffer"]->set(m_accumBuffer);
 }
 
+/**
+  @brief    clear scene from elements
+**/
 int RT_scene::clear()
 {
     spdlog::warn("Clearing the whole scene!");
@@ -140,6 +144,11 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType)
     return createObject(name, objType, "");
 }
 
+/**
+  @brief    delete some object from scene
+  @param    name    object name
+  @return   0 on success false otherwise
+  **/
 int RT_scene::deleteObject(const QString &name)
 {
     if (name.isEmpty()) {
@@ -174,7 +183,6 @@ int RT_scene::deleteObject(const QString &name)
                 }
             }
             RT_lightSource::m_light_count--; ///< Decreasing static light counter
-            // TODO: delete light object
             m_lights.remove(lightSourceIndex(name));
             delete obj;
         }
