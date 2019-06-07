@@ -65,5 +65,7 @@ void parse_data(RT_scene* scene, QString& zmq_rec_data)
         // TODO properly parse material parameter
     } else if (0 == sList.at(0).compare("setMaterialParameter", Qt::CaseInsensitive)){
         scene->manipulateObject(sList.at(0), sList.at(1), sList.at(2));
+    } else if (0 == sList.at(0).compare("clear", Qt::CaseInsensitive)) {
+        scene->clear();
     }
 }

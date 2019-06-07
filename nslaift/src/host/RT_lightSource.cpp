@@ -25,7 +25,6 @@ RT_lightSource::RT_lightSource(optix::Context &context, RT_object *parent /*NULL
   @brief    lazy destructor
   **/
 RT_lightSource::~RT_lightSource() {
-
 }
 
 bool RT_lightSource::m_isBufferInitialized = false;

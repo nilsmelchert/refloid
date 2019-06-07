@@ -36,7 +36,7 @@ RT_sphere::RT_sphere(optix::Context &context, optix::Group &root_group, RT_objec
 }
 
 RT_sphere::~RT_sphere() {
-    spdlog::debug("Deleting sphere object: {}", m_strName.toUtf8().constData());
+    spdlog::debug("Deleting sphere object: \"{}\"", m_strName.toUtf8().constData());
     int idx = m_rootGroup->getChildIndex(m_transform_optix);
     m_sphere->destroy();
     m_geom_inst->destroy();

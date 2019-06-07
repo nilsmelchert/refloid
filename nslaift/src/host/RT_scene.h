@@ -29,7 +29,7 @@ public:
 public:
     RT_camera*                     m_activeCamera;          ///<   camera through which it is rendered (=active camera)
     // delete all content in the scene
-    int clear(bool destroy = true);
+    int clear();
     RT_object* createObject(const QString &name, const QString &objType, const QString &objParams);
     RT_object* createObject(const QString &name, const QString &objType);
     int deleteObject(const QString &name);

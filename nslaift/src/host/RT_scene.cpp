@@ -61,8 +61,26 @@ void RT_scene::initOutputBuffers()
     m_context["sysAccumBuffer"]->set(m_accumBuffer);
 }
 
-int RT_scene::clear(bool destroy)
+int RT_scene::clear()
 {
+    spdlog::warn("Clearing the whole scene!");
+    int cam_size = m_cameras.size();
+    int obj_size = m_objects.size();
+    int light_size = m_lights.size();
+
+    for (int i=0; i<cam_size; i++) {
+//        spdlog::debug("Deleting camera \"{}\"", cameraName(0).toStdString());
+        deleteObject(cameraName(0));
+    }
+    for (int i=0; i<obj_size; i++) {
+//        spdlog::debug("Deleting object \"{}\"", objectName(0).toStdString());
+        deleteObject(objectName(0));
+    }
+    for (int i=0; i<light_size; i++) {
+//        spdlog::debug("Deleting light \"{}\"", lightSourceName(0).toStdString());
+        deleteObject(lightSourceName(0));
+    }
+
     return 0;
 }
 
@@ -129,10 +147,9 @@ int RT_scene::deleteObject(const QString &name)
         return -1;
     }
     RT_object* obj = findObject(name);
-    if (!obj->m_ObjType.isEmpty())
+    if (obj != nullptr)
     {
         if (0 == obj->m_ObjType.compare("camera")) {
-            spdlog::debug("Deleting camera object {}", obj->m_strName.toUtf8().constData());
             int cam_idx = cameraIndex(name);
             int entry_pt = m_cameras.at(cam_idx)->m_iCameraIdx;
             for (int i=0; i<m_cameras.size(); i++) {
@@ -143,12 +160,10 @@ int RT_scene::deleteObject(const QString &name)
             m_cameras.remove(cam_idx);
             delete obj;
         } else if (0 == obj->m_ObjType.compare("geometry")) {
-            spdlog::debug("Deleting geometry object {}", obj->m_strName.toUtf8().constData());
             m_objects.remove(objectIndex(name));
             delete obj;
         }
         else if (0 == obj->m_ObjType.compare("light")) {
-            spdlog::debug("Deleting light source object {}", obj->m_strName.toUtf8().constData());
             int light_idx = lightSourceIndex(name);
             int buff_idx = m_lights.at(light_idx)->m_light_idx;
             for (int i=0; i<m_lights.size(); i++)
@@ -164,7 +179,7 @@ int RT_scene::deleteObject(const QString &name)
             delete obj;
         }
     } else {
-        spdlog::error("No object type was specified for object {}", obj->m_strName.toUtf8().constData());
+        spdlog::error("Could not find any scene object with name \"{}\". Not deleting anything.", name.toStdString());
     }
 }
 

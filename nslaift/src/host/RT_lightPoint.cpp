@@ -18,6 +18,7 @@ RT_lightPoint::RT_lightPoint(optix::Context &context, RT_object *parent /*=NULL*
   @brief    lazy destructor
 **/
 RT_lightPoint::~RT_lightPoint() {
+    spdlog::debug("Deleting light point object: \"{}\"", m_strName.toUtf8().constData());
 }
 
 /**

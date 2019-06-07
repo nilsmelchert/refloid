@@ -36,6 +36,7 @@ RT_camera::RT_camera(optix::Context &context, RT_object *parent) :
   @brief    destructor
   **/
 RT_camera::~RT_camera() {
+    spdlog::debug("Deleting camera object: \"{}\"", m_strName.toUtf8().constData());
     m_ray_gen_pgrm->destroy();
     m_context->setEntryPointCount(m_context->getEntryPointCount() - 1);
 }
