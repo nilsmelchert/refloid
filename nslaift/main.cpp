@@ -53,7 +53,14 @@ void parse_data(RT_scene* scene, QString& zmq_rec_data)
     if (0 == sList.at(0).compare("createObject", Qt::CaseInsensitive)){
         scene->createObject(sList.at(1), sList.at(2));
     } else if (0 == sList.at(0).compare("manipulateObject", Qt::CaseInsensitive)){
-        scene->manipulateObject(sList.at(1), sList.at(2), sList.at(3));
+        if (0 == sList.at(2).compare("setMaterialParameter", Qt::CaseInsensitive)){
+            QString param_extended = sList.at(3);
+            param_extended.append(";");
+            param_extended.append(sList.at(4));
+            scene->manipulateObject(sList.at(1), sList.at(2), param_extended);
+        } else {
+            scene->manipulateObject(sList.at(1), sList.at(2), sList.at(3));
+        }
     } else if (0 == sList.at(0).compare("render", Qt::CaseInsensitive)) {
         if (scene->updateCaches() > -1) {
             scene->render();
@@ -61,9 +68,6 @@ void parse_data(RT_scene* scene, QString& zmq_rec_data)
     } else if (0 == sList.at(0).compare("deleteObject", Qt::CaseInsensitive)){
         scene->deleteObject(sList.at(1));
     } else if (0 == sList.at(0).compare("setMaterial", Qt::CaseInsensitive)){
-        scene->manipulateObject(sList.at(0), sList.at(1), sList.at(2));
-        // TODO properly parse material parameter
-    } else if (0 == sList.at(0).compare("setMaterialParameter", Qt::CaseInsensitive)){
         scene->manipulateObject(sList.at(0), sList.at(1), sList.at(2));
     } else if (0 == sList.at(0).compare("clear", Qt::CaseInsensitive)) {
         scene->clear();

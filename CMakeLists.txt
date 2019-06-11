@@ -204,7 +204,6 @@ foreach (flag ${CUDA_NVRTC_FLAGS})
 endforeach ()
 set(CUDA_NVRTC_OPTIONS "${CUDA_NVRTC_OPTIONS} \\\n  0,")
 
-# TODO: Maybe set this studd in parentheses
 configure_file(${OptiX_INSTALL_DIR}/SDK/sampleConfig.h.in ${CMAKE_BINARY_DIR}/sampleConfig.h @ONLY)
 
 # Path to sutil.h that all the samples need

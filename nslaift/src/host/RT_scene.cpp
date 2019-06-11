@@ -182,7 +182,6 @@ int RT_scene::deleteObject(const QString &name)
                     m_lights.at(i)->m_light_idx--;
                 }
             }
-            RT_lightSource::m_light_count--; ///< Decreasing static light counter
             m_lights.remove(lightSourceIndex(name));
             delete obj;
         }
@@ -204,7 +203,7 @@ int RT_scene::manipulateObject(const QString &name, const QString &action, const
     if(object) {
         return manipulateObject(object, action, parameters);
     } else {
-        spdlog::error("Object you specified by name {} not found", name.toStdString());
+        spdlog::error("Object you specified by name \"{}\" not found", name.toStdString());
         return -1;
     }
 }

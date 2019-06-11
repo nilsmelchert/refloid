@@ -23,7 +23,13 @@ public:
 public:
     optix::Context& m_context;
     optix::Material m_material_optix;
-    optix::float3 m_material_color = optix::make_float3(0.6, 0.6, 0.6); // Set default object color to gray
+
+private:
+    QString m_mat_type = "phong"; ///< Default material is set to rendering phong
+    optix::float3 m_color = optix::make_float3(0.6f);
+    optix::float3 m_Kd = optix::make_float3(0.4f, 0.4f, 0.4f);
+    optix::float3 m_Ks = optix::make_float3(0.2f, 0.2f, 0.2f);
+    float m_spec_exp = 2;
 };
 
 

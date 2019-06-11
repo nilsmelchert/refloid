@@ -180,7 +180,7 @@ void RT_object::move(float x, float y, float z) {
   @param    y   translation in y-direction
   @param    z   translation in z-direction
 
-  @todo verify function
+  @todo verify function -> Poesch
 
   Replace the part of the matrix that matters ;)
   **/
@@ -364,7 +364,7 @@ int RT_object::parseActions(const QString &action, const QString &parameters) {
         }
     } else if((0 == action.compare("setVisible", Qt::CaseInsensitive)) || (0 == action.compare("visible", Qt::CaseInsensitive))) {
         bool ok;
-        bool visible = parameters.toInt(&ok);
+        bool visible = bool(parameters.toInt(&ok));
         if (ok) {
             setVisible(visible);
         } else {
@@ -382,7 +382,7 @@ int RT_object::parseActions(const QString &action, const QString &parameters) {
     } else if (0 == action.compare("setMaterialType", Qt::CaseInsensitive) || 0 == action.compare("setBRDF", Qt::CaseInsensitive) || 0 == action.compare("materialType", Qt::CaseInsensitive) || 0 == action.compare("brdf", Qt::CaseInsensitive) || 0 == action.compare("setMaterial", Qt::CaseInsensitive) | 0 == action.compare("Material", Qt::CaseInsensitive)) {
         return m_material->parseActions(action, parameters);
     } else if (0 == action.compare("setMaterialParameter", Qt::CaseInsensitive) || 0 == action.compare("materialParameter", Qt::CaseInsensitive)) {
-        // TODO
+        return m_material->parseActions(action, parameters);
     }
     return 0;
 }
