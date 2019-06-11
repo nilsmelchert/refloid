@@ -124,6 +124,15 @@ RT_object *RT_scene::createObject(const QString &name, const QString &objType, c
         }
         sphere->setName(name);
         addObject(sphere);
+    } else if (0 == objType.compare("cuboid", Qt::CaseInsensitive)) {
+        auto* cuboid = new RT_cuboid(m_context, m_rootGroup);
+        if (!objParams.isEmpty()) {
+            // TODO: implement setting minmax parameters for cuboid
+        } else {
+            spdlog::debug("No object parameters were given for cuboid object: {}", cuboid->m_strName.toUtf8().constData());
+        }
+        cuboid->setName(name);
+        addObject(cuboid);
     } else if (0 == objType.compare("lightpoint", Qt::CaseInsensitive)) {
         auto* lightpoint = new RT_lightPoint(m_context);
         if (!objParams.isEmpty()) {

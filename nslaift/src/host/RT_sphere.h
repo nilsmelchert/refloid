@@ -2,7 +2,6 @@
 #define NSLAIFT_RT_SPHERE_H
 
 #include "RT_object.h"
-#include "RT_material.h"
 
 #include <optix.h>
 #include <sutil.h>

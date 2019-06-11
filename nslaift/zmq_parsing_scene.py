@@ -17,6 +17,9 @@ if __name__ == '__main__':
     send_zmq_msg("createObject;lightpoint1;lightpoint")
     send_zmq_msg("manipulateObject;lightpoint1;translate;10.0,0.0,0.0")
     send_zmq_msg("manipulateObject;lightpoint1;color;1.0,0.0,0.0")
+    send_zmq_msg("createObject;lightpoint2;lightpoint")
+    send_zmq_msg("manipulateObject;lightpoint2;translate;0.0,1.0,0.0")
+    send_zmq_msg("manipulateObject;lightpoint2;color;0.0,0.0,0.5")
 
     send_zmq_msg("createObject;cam1;camera")
     send_zmq_msg("manipulateObject;cam1;translate;0.0,0.0,0.0")
@@ -25,6 +28,10 @@ if __name__ == '__main__':
     # send_zmq_msg("manipulateObject;cam2;translate;0.0,-7.0,-3.5")
     # send_zmq_msg("manipulateObject;cam2;spin;-45.0,0.0,0.0")
     send_zmq_msg("createObject;sphere1;sphere")
+    send_zmq_msg("createObject;cuboid1;cuboid")
+    send_zmq_msg("manipulateObject;cuboid1;color;flat")
+    send_zmq_msg("manipulateObject;cuboid1;spin;0.0,0.0,20.0")
+    # send_zmq_msg("manipulateObject;cuboid1;translate;5.0,2.0,0.0")
     send_zmq_msg("manipulateObject;sphere1;translate;0.0,-0.1,2.0")
     send_zmq_msg("render")
 

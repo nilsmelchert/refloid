@@ -50,6 +50,7 @@ void RT_sphere::setRadius(float r) {
 
 int RT_sphere::updateCache() {
     spdlog::debug("Updating caches of sphere object {}", m_strName.toUtf8().constData());
+    m_transform_optix->setMatrix(false, m_transform.getData(), m_transform.inverse().getData());
     m_rootGroup->getAcceleration()->markDirty();
     m_geom_group->getAcceleration()->markDirty();
     m_geom_inst->setMaterial(0, m_material->m_material_optix);
@@ -66,7 +67,7 @@ int RT_sphere::updateCache() {
   first all "local" actions are looked up, if none found then base class RTobject::parseActions() is called
   **/
 int RT_sphere::parseActions(const QString &action, const QString &parameters) {
-    spdlog::debug("Parsing parameter {0} for action {1} on camera object {2}", parameters.toUtf8().constData(),
+    spdlog::debug("Parsing parameter {0} for action {1} on sphere object {2}", parameters.toUtf8().constData(),
                   action.toUtf8().constData(), m_strName.toUtf8().constData());
     if((0 == action.compare("setRadius", Qt::CaseInsensitive)) || (0 == action.compare("radius", Qt::CaseInsensitive)))
     {

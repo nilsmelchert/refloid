@@ -5,6 +5,7 @@
 #include "RT_camera.h"
 #include "RT_sphere.h"
 #include "RT_lightSource.h"
+#include "RT_cuboid.h"
 
 #include <zmq.hpp>
 #include <tiff.h>
