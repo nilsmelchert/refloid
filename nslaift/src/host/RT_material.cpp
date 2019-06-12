@@ -26,6 +26,7 @@ void RT_material::setMaterialType(QString &mat_type, QString &parameters) {
         ptx_mat_path = rthelpers::ptxPath(mat_type.append(".cu").toStdString());
         ch_pgrm = m_context->createProgramFromPTXFile(ptx_mat_path, "closest_hit");
         ah_pgrm = m_context->createProgramFromPTXFile(ptx_mat_path, "any_hit");
+        ch_pgrm["color"]->setFloat(m_color);
     } else if (0 == mat_type.compare("phong", Qt::CaseInsensitive)) {
         ptx_mat_path = rthelpers::ptxPath(mat_type.append(".cu").toStdString());
         ch_pgrm = m_context->createProgramFromPTXFile(ptx_mat_path, "closest_hit");

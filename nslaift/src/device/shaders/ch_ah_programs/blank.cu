@@ -24,5 +24,5 @@ RT_PROGRAM void any_hit()
 
 RT_PROGRAM void closest_hit()
 {
-    prd_radiance.radiance = make_float3(1.0f);
+    prd_radiance.radiance = make_float3(color.x, color.y, color.z);
 }

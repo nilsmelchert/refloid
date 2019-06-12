@@ -7,7 +7,7 @@ OPTIX_add_sample_executable( nslaift
         src/device/lights/point_light.cu
         src/device/shaders/miss_programs/miss.cu
         src/device/intersection_programs/sphere_intersect.cu
-        src/device/intersection_programs/cuboid_intersect.cu
+        src/device/intersection_programs/triangle_intersect.cu
         src/device/shaders/ch_ah_programs/normal.cu
         src/device/shaders/ch_ah_programs/blank.cu
         src/device/shaders/ch_ah_programs/phong.cu
@@ -17,6 +17,7 @@ OPTIX_add_sample_executable( nslaift
         src/device/includes/random_number_generators_gpu.h
         src/device/includes/app_config.h
         src/device/includes/light_definition.h
+        src/device/includes/vertex_attributes.h
 
         src/host/RT_matrixHelpers.h
         src/host/RT_matrixHelpers.cpp

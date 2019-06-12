@@ -6,6 +6,7 @@
 #define NSLAIFT_RT_CUBOID_H
 
 #include "RT_object.h"
+#include "includes/vertex_attributes.h"
 
 #include <optix.h>
 #include <sutil.h>
@@ -19,6 +20,9 @@ public:
     int updateCache() override;
     int parseActions(const QString &action, const QString &parameters) override;
 
+    void create_verticies();
+    void update_vertices();
+
     void setMinMax(optix::float3 min, optix::float3 max);
     void setMinMax(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax);
 
@@ -30,8 +34,22 @@ public:
     optix::GeometryGroup m_geom_group;
     optix::Transform m_transform_optix;
 
-    optix::float3 m_cuboid_min = optix::make_float3(-2.0f, -2.0f, 8.0f);
-    optix::float3 m_cuboid_max = optix::make_float3(2.0f, 2.0f, 12.0f);
+//    optix::float3 m_cuboid_min = optix::make_float3(-2.0f, -2.0f, 8.0f);
+//    optix::float3 m_cuboid_max = optix::make_float3(2.0f, 2.0f, 12.0f);
+
+    optix::Buffer m_attributesBuffer;
+    optix::Buffer m_indicesBuffer;
+
+    float m_left = -1.0f;
+    float m_right = 1.0f;
+    float m_bottom = -1.0f;
+    float m_top = 1.0f;
+    float m_back = -1.0f;
+    float m_front = 1.0f;
+
+    std::vector<VertexAttributes> m_attributes;
+    std::vector<unsigned int> m_indices;
+
 };
 
 
