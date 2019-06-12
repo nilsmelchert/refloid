@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # Socket to talk to server
     socket = context.socket(zmq.REQ)
     socket.connect("tcp://localhost:5555")
-    # send_zmq_msg("clear")
+    send_zmq_msg("clear")
 
     send_zmq_msg("createObject;lightpoint1;lightpoint")
     send_zmq_msg("manipulateObject;lightpoint1;translate;10.0,0.0,0.0")
@@ -36,10 +36,9 @@ if __name__ == '__main__':
 
     send_zmq_msg("manipulateObject;lightpoint2;translate;0.0,-20.0,0.0")
 
-    # send_zmq_msg("manipulateObject;sphere1;setMaterialParameter;Ks;1.0,1.0,1.0")
-    send_zmq_msg("render")
+
     # send_zmq_msg("manipulateObject;sphere1;setMaterialParameter;Ks;0.0,0.0,0.0")
-    # send_zmq_msg("render")
+    send_zmq_msg("render")
 
     # send_zmq_msg("clear")
 

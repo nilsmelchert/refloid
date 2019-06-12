@@ -51,11 +51,12 @@ RT_cuboid::~RT_cuboid() {
     m_geom_inst->destroy();
     m_geom_group->destroy();
     m_rootGroup->removeChild(idx);
+    m_transform_optix->destroy();
+    // TODO: There is still something wrong when deleting this object
 }
 
 int RT_cuboid::updateCache() {
     spdlog::debug("Updating caches of cuboid object {}", m_strName.toUtf8().constData());
-    // TODO: Seems like the intersection program needs some modification in order to be able to handle rotations
     // Thinking about making averything triangle based
     m_transform_optix->setMatrix(false, m_transform.getData(), m_transform.inverse().getData());
     m_rootGroup->getAcceleration()->markDirty();

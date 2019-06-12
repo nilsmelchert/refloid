@@ -17,7 +17,7 @@ public:
     ~RT_cuboid();
 
 public:
-    int updateCache() override;
+    int updateCache();
     int parseActions(const QString &action, const QString &parameters) override;
 
     void create_verticies();
