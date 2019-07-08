@@ -8,6 +8,7 @@ OPTIX_add_sample_executable( nslaift
         src/device/shaders/miss_programs/miss.cu
         src/device/intersection_programs/sphere_intersect.cu
         src/device/intersection_programs/triangle_intersect.cu
+        src/device/intersection_programs/mesh_intersect.cu
         src/device/shaders/ch_ah_programs/normal.cu
         src/device/shaders/ch_ah_programs/blank.cu
         src/device/shaders/ch_ah_programs/phong.cu
@@ -33,6 +34,8 @@ OPTIX_add_sample_executable( nslaift
         src/host/RT_material.cpp
         src/host/RT_sphere.h
         src/host/RT_sphere.cpp
+        src/host/RT_mesh.h
+        src/host/RT_mesh.cpp
         src/host/RT_cuboid.h
         src/host/RT_cuboid.cpp
         src/host/RT_lightSource.h

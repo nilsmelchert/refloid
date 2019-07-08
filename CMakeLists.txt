@@ -13,7 +13,7 @@ cmake_policy(VERSION 2.6)
 # Locate the NVRT distribution.  Search the SDK first, then look in the system.
 # set(OptiX_INSTALL_DIR "${CMAKE_SOURCE_DIR}/../" CACHE PATH "Path to OptiX installed location.")
 # set(OptiX_INSTALL_DIR "/home/melchert/Desktop/raytracing/NVIDIA-OptiX-SDK-6.0.0-linux64" CACHE PATH "Path to OptiX installed location.")
-set(OptiX_INSTALL_DIR "/home/melchert/Desktop/raytracing/NVIDIA-OptiX-SDK-6.0.0-linux64" CACHE PATH "Path to OptiX installed location.")
+set(OptiX_INSTALL_DIR "/home/melchert/Desktop/Projects/raytracing/NVIDIA-OptiX-SDK-6.0.0-linux64" CACHE PATH "Path to OptiX installed location.")
 
 
 # Add paths to our CMake code to the module path, so they can be found automatically by
