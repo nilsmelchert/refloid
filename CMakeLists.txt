@@ -1,4 +1,4 @@
-project(nslaift)
+project(refloid)
 
 # This enforces a particular version of CMake that we require to process the script files
 # properly.
@@ -307,7 +307,7 @@ endfunction()
 # Just make sure you rename all the occurances of the sample's name in the C code as well
 # and the CMakeLists.txt file.
 # add_subdirectory(optixBuffersOfBuffers)
-add_subdirectory(nslaift)
+add_subdirectory(refloid)
 
 # Our sutil library.  The rules to build it are found in the subdirectory.
 # add_subdirectory(sutil)
